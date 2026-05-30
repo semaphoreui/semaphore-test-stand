@@ -14,7 +14,7 @@ obviously non-production placeholders.
 
 ```
 tests/var-group-with-secrets/
-├── run-test.sh        # Bash checks + ansible-playbook (simulates variable group)
+├── run-test.sh        # Bash equivalent of test.yml (no Ansible)
 ├── test.yml           # entrypoint playbook (localhost)
 ├── inventory.ini      # local-only inventory
 └── roles/
@@ -41,18 +41,17 @@ tests/var-group-with-secrets/
 
 ### Bash script (recommended)
 
-`run-test.sh` applies the same fake cloud secrets as the Terraform variable
-group, asserts them in Bash (env vs var semantics), then runs the playbook:
+`run-test.sh` mirrors the three Ansible roles (`aws`, `azure`, `gcp`) in pure
+Bash: show values, assert fingerprints, print success/fail messages. Locally it
+injects fake secrets when the environment is empty; under Semaphore it uses the
+variable group already attached to the template.
 
 ```sh
 cd tests/var-group-with-secrets
 ./run-test.sh
 ```
 
-Bash-only (skip Ansible): comment out `run_ansible_playbook` in the script, or
-stop after the `OK:` lines — the script exits non-zero if any Bash assert fails.
-
-### Manual ansible-playbook
+### Ansible playbook (optional)
 
 ```sh
 cd tests/var-group-with-secrets
@@ -70,18 +69,28 @@ ansible-playbook -i inventory.ini test.yml \
   -e GCP_SERVICE_ACCOUNT_EMAIL=fake-sa@fake-gcp-demo-project.iam.gserviceaccount.com
 ```
 
-Expected outcome: Bash `OK:` lines for every secret, then all three Ansible roles
-print their `success_msg` and the play ends with `failed=0`.
+Expected outcome: every `OK:` line and `=> … OK` role message; exit code `0`.
+For Ansible, all three roles print their `success_msg` and the play ends with
+`failed=0`.
 
 ## Wire it into Semaphore
 
-Terraform in `stands/stand1/` defines:
+Terraform in `stands/stand1/environment_cloud_secrets.tf` defines:
 
-1. **Variable group** `cloud-secrets` with the table above (`environment_cloud_secrets.tf`).
-2. **Task template** `var-group-with-secrets` → playbook `tests/var-group-with-secrets/test.yml`.
+1. **Variable group** `cloud-secrets` with the table above.
+2. **Task templates** (both use variable group `cloud-secrets`):
+   - `var-group-with-secrets` — app **ansible**, playbook `tests/var-group-with-secrets/test.yml`
+   - `var-group-with-secrets-bash` — app **bash**, script `tests/var-group-with-secrets/run-test.sh`
 
 Reuses the same repository, inventory (`localhost`), and `none` key as the
-other stand-1 templates. Apply Terraform, then run the template from the UI.
+other stand-1 templates:
+
+```sh
+cd stands/stand1
+terraform apply
+```
+
+Then run either template from the Semaphore UI.
 
 ## Negative checks (optional)
 

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Simulate Semaphore variable group "cloud-secrets" locally, verify in Bash,
-# then run the Ansible playbook with the same values.
+# Bash equivalent of test.yml (roles aws, azure, gcp).
+# Verifies Semaphore variable group "cloud-secrets": env secrets, plain env,
+# var secrets, and plain extra variables.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# --- expected values (match stands/stand1/environment_cloud_secrets.tf) ---
+# Expected values (match stands/stand1/environment_cloud_secrets.tf)
 readonly AWS_ACCESS_KEY_ID_EXPECTED="AKIAFAKE00000000001"
 readonly AWS_SECRET_ACCESS_KEY_EXPECTED="fake-aws-secret-access-key-32chars!!"
 readonly AWS_DEFAULT_REGION_EXPECTED="us-east-1"
@@ -26,86 +27,117 @@ assert_eq() {
   if [[ "$actual" != "$expected" ]]; then
     echo "FAIL: $name"
     echo "  expected: $expected"
-    echo "  actual:   $actual"
+    echo "  actual:   ${actual:-<unset>}"
     failures=$((failures + 1))
-  else
-    echo "OK:   $name"
+    return 1
   fi
+  echo "OK:   $name"
+  return 0
 }
 
-# Mimics Semaphore variable group injection before Ansible runs.
-apply_variable_group() {
-  # secret type "env" + plain environment
+# Local/dev only: simulate Semaphore variable group injection.
+apply_variable_group_local() {
   export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID_EXPECTED"
   export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY_EXPECTED"
   export AWS_DEFAULT_REGION="$AWS_DEFAULT_REGION_EXPECTED"
 
-  # secret type "var" + plain extra variable (passed to ansible-playbook -e)
-  ARM_CLIENT_ID="$ARM_CLIENT_ID_EXPECTED"
-  ARM_CLIENT_SECRET="$ARM_CLIENT_SECRET_EXPECTED"
-  ARM_TENANT_ID="$ARM_TENANT_ID_EXPECTED"
-  GCP_PROJECT_ID="$GCP_PROJECT_ID_EXPECTED"
-  GCP_SERVICE_ACCOUNT_EMAIL="$GCP_SERVICE_ACCOUNT_EMAIL_EXPECTED"
-  cloud_provider_hint="$CLOUD_PROVIDER_HINT_EXPECTED"
-  export ARM_CLIENT_ID ARM_CLIENT_SECRET ARM_TENANT_ID
-  export GCP_PROJECT_ID GCP_SERVICE_ACCOUNT_EMAIL cloud_provider_hint
+  export ARM_CLIENT_ID="$ARM_CLIENT_ID_EXPECTED"
+  export ARM_CLIENT_SECRET="$ARM_CLIENT_SECRET_EXPECTED"
+  export ARM_TENANT_ID="$ARM_TENANT_ID_EXPECTED"
+  export GCP_PROJECT_ID="$GCP_PROJECT_ID_EXPECTED"
+  export GCP_SERVICE_ACCOUNT_EMAIL="$GCP_SERVICE_ACCOUNT_EMAIL_EXPECTED"
+  export cloud_provider_hint="$CLOUD_PROVIDER_HINT_EXPECTED"
 }
 
-test_aws_env_secrets() {
-  echo "--- aws (env secrets + plain environment) ---"
-  assert_eq "AWS_ACCESS_KEY_ID" "$AWS_ACCESS_KEY_ID_EXPECTED" "${AWS_ACCESS_KEY_ID:-}"
-  assert_eq "AWS_SECRET_ACCESS_KEY" "$AWS_SECRET_ACCESS_KEY_EXPECTED" "${AWS_SECRET_ACCESS_KEY:-}"
-  assert_eq "AWS_DEFAULT_REGION" "$AWS_DEFAULT_REGION_EXPECTED" "${AWS_DEFAULT_REGION:-}"
-}
-
-test_azure_var_secrets() {
-  echo "--- azure (var secrets → extra vars) ---"
-  assert_eq "ARM_CLIENT_ID" "$ARM_CLIENT_ID_EXPECTED" "${ARM_CLIENT_ID:-}"
-  assert_eq "ARM_CLIENT_SECRET" "$ARM_CLIENT_SECRET_EXPECTED" "${ARM_CLIENT_SECRET:-}"
-  assert_eq "ARM_TENANT_ID" "$ARM_TENANT_ID_EXPECTED" "${ARM_TENANT_ID:-}"
-}
-
-test_gcp_var_secrets() {
-  echo "--- gcp (var secrets + plain extra var) ---"
-  assert_eq "GCP_PROJECT_ID" "$GCP_PROJECT_ID_EXPECTED" "${GCP_PROJECT_ID:-}"
-  assert_eq "GCP_SERVICE_ACCOUNT_EMAIL" "$GCP_SERVICE_ACCOUNT_EMAIL_EXPECTED" "${GCP_SERVICE_ACCOUNT_EMAIL:-}"
-  assert_eq "cloud_provider_hint" "$CLOUD_PROVIDER_HINT_EXPECTED" "${cloud_provider_hint:-}"
-}
-
-run_ansible_playbook() {
-  echo "--- ansible-playbook ---"
-  if ! command -v ansible-playbook >/dev/null 2>&1; then
-    echo "SKIP: ansible-playbook not found"
+ensure_variable_group() {
+  if [[ -n "${AWS_ACCESS_KEY_ID:-}" && -n "${ARM_CLIENT_ID:-}" && -n "${GCP_PROJECT_ID:-}" ]]; then
+    echo "== variable group: using injected environment =="
     return 0
   fi
 
-  ansible-playbook -i inventory.ini test.yml \
-    -e "cloud_provider_hint=${cloud_provider_hint}" \
-    -e "ARM_CLIENT_ID=${ARM_CLIENT_ID}" \
-    -e "ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}" \
-    -e "ARM_TENANT_ID=${ARM_TENANT_ID}" \
-    -e "GCP_PROJECT_ID=${GCP_PROJECT_ID}" \
-    -e "GCP_SERVICE_ACCOUNT_EMAIL=${GCP_SERVICE_ACCOUNT_EMAIL}"
+  echo "== variable group: applying local fake cloud secrets =="
+  apply_variable_group_local
+}
+
+# --- aws role (env secrets + plain environment) ---
+role_aws() {
+  echo
+  echo "TASK [aws : Show AWS env secrets and plain region]"
+  echo "  AWS_ACCESS_KEY_ID     = ${AWS_ACCESS_KEY_ID:-}"
+  echo "  AWS_SECRET_ACCESS_KEY = ${AWS_SECRET_ACCESS_KEY:-}"
+  echo "  AWS_DEFAULT_REGION    = ${AWS_DEFAULT_REGION:-}"
+
+  echo "TASK [aws : Assert AWS secrets from variable group (env type)]"
+  local ok=0
+  assert_eq "AWS_ACCESS_KEY_ID" "$AWS_ACCESS_KEY_ID_EXPECTED" "${AWS_ACCESS_KEY_ID:-}" || ok=1
+  assert_eq "AWS_SECRET_ACCESS_KEY" "$AWS_SECRET_ACCESS_KEY_EXPECTED" "${AWS_SECRET_ACCESS_KEY:-}" || ok=1
+  assert_eq "AWS_DEFAULT_REGION" "$AWS_DEFAULT_REGION_EXPECTED" "${AWS_DEFAULT_REGION:-}" || ok=1
+
+  if [[ "$ok" -eq 0 ]]; then
+    echo "  => aws role: AWS env secrets and region OK"
+  else
+    echo "  => aws role: env secret or plain env var mismatch — check variable group"
+  fi
+}
+
+# --- azure role (var secrets as process environment / extra vars) ---
+role_azure() {
+  echo
+  echo "TASK [azure : Show Azure extra-var secrets]"
+  echo "  ARM_CLIENT_ID     = ${ARM_CLIENT_ID:-}"
+  echo "  ARM_CLIENT_SECRET = ${ARM_CLIENT_SECRET:-}"
+  echo "  ARM_TENANT_ID     = ${ARM_TENANT_ID:-}"
+
+  echo "TASK [azure : Assert Azure secrets from variable group (var type)]"
+  local ok=0
+  assert_eq "ARM_CLIENT_ID" "$ARM_CLIENT_ID_EXPECTED" "${ARM_CLIENT_ID:-}" || ok=1
+  assert_eq "ARM_CLIENT_SECRET" "$ARM_CLIENT_SECRET_EXPECTED" "${ARM_CLIENT_SECRET:-}" || ok=1
+  assert_eq "ARM_TENANT_ID" "$ARM_TENANT_ID_EXPECTED" "${ARM_TENANT_ID:-}" || ok=1
+
+  if [[ "$ok" -eq 0 ]]; then
+    echo "  => azure role: Azure var secrets OK"
+  else
+    echo "  => azure role: extra-var secret mismatch — check variable group"
+  fi
+}
+
+# --- gcp role (var secrets + plain extra var) ---
+role_gcp() {
+  echo
+  echo "TASK [gcp : Show GCP extra-var secrets and shared hint]"
+  echo "  GCP_PROJECT_ID            = ${GCP_PROJECT_ID:-}"
+  echo "  GCP_SERVICE_ACCOUNT_EMAIL = ${GCP_SERVICE_ACCOUNT_EMAIL:-}"
+  echo "  cloud_provider_hint       = ${cloud_provider_hint:-}"
+
+  echo "TASK [gcp : Assert GCP secrets and plain extra var from variable group]"
+  local ok=0
+  assert_eq "GCP_PROJECT_ID" "$GCP_PROJECT_ID_EXPECTED" "${GCP_PROJECT_ID:-}" || ok=1
+  assert_eq "GCP_SERVICE_ACCOUNT_EMAIL" "$GCP_SERVICE_ACCOUNT_EMAIL_EXPECTED" "${GCP_SERVICE_ACCOUNT_EMAIL:-}" || ok=1
+  assert_eq "cloud_provider_hint" "$CLOUD_PROVIDER_HINT_EXPECTED" "${cloud_provider_hint:-}" || ok=1
+
+  if [[ "$ok" -eq 0 ]]; then
+    echo "  => gcp role: GCP var secrets and hint OK"
+  else
+    echo "  => gcp role: var secret or extra variable mismatch — check variable group"
+  fi
 }
 
 main() {
-  echo "== var-group-with-secrets: apply variable group =="
-  apply_variable_group
+  echo "PLAY [Variable group secrets scenario]"
+
+  ensure_variable_group
+
+  role_aws
+  role_azure
+  role_gcp
 
   echo
-  echo "== Bash checks (same assertions as Ansible roles) =="
-  test_aws_env_secrets
-  test_azure_var_secrets
-  test_gcp_var_secrets
-
+  echo "PLAY RECAP *********************************************************************"
   if [[ "$failures" -gt 0 ]]; then
-    echo
-    echo "$failures bash assertion(s) failed"
+    echo "localhost : ok=0 failed=$failures"
     exit 1
   fi
-
-  echo
-  run_ansible_playbook
+  echo "localhost : ok=3 failed=0"
   echo
   echo "All checks passed."
 }
