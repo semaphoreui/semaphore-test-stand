@@ -1,0 +1,9 @@
+---
+- name: Variable group secrets scenario
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  roles:
+    - aws
+    - azure
+    - gcp

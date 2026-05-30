@@ -10,7 +10,8 @@ Semaphore.
 
 | Scenario | What it covers |
 |---|---|
-| [`tests/multile-vault-passwords`](tests/multile-vault-passwords) | Decrypting three Ansible vault files encrypted with **three different passwords / vault-ids** (`default`, `vault1`, `vault2`) in a single playbook run. Two roles (`webapp`, `monitoring`) consume the shared `default` vault plus their own per-service vault, with `assert` tasks that fail loudly on a wrong password. |
+| [`tests/multiple-vault-passwords`](tests/multiple-vault-passwords) | Decrypting three Ansible vault files encrypted with **three different passwords / vault-ids** (`default`, `vault1`, `vault2`) in a single playbook run. Two roles (`webapp`, `monitoring`) consume the shared `default` vault plus their own per-service vault, with `assert` tasks that fail loudly on a wrong password. |
+| [`tests/var-group-with-secrets`](tests/var-group-with-secrets) | Variable group **environment**, **extra vars**, and **secrets** (`env` vs `var` types) with fake AWS/Azure/GCP-style credentials; three roles assert each cloud slice received the expected values. |
 
 ## Running a scenario locally
 

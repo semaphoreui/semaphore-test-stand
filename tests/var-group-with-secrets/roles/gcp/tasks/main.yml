@@ -1,0 +1,16 @@
+---
+- name: Show GCP extra-var secrets and shared hint
+  ansible.builtin.debug:
+    msg:
+      - "GCP_PROJECT_ID              = {{ GCP_PROJECT_ID }}"
+      - "GCP_SERVICE_ACCOUNT_EMAIL   = {{ GCP_SERVICE_ACCOUNT_EMAIL }}"
+      - "cloud_provider_hint         = {{ cloud_provider_hint }}"
+
+- name: Assert GCP secrets and plain extra var from variable group
+  ansible.builtin.assert:
+    that:
+      - GCP_PROJECT_ID == "fake-gcp-demo-project"
+      - GCP_SERVICE_ACCOUNT_EMAIL == "fake-sa@fake-gcp-demo-project.iam.gserviceaccount.com"
+      - cloud_provider_hint == "fake-multi-cloud-demo"
+    fail_msg: "gcp role: var secret or extra variable mismatch — check variable group"
+    success_msg: "gcp role: GCP var secrets and hint OK"
