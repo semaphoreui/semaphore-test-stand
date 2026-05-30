@@ -8,7 +8,7 @@
 
 - name: Deplay before asserting
   ansible.builtin.pause:
-    seconds: 10 
+    seconds: 5
 
 - name: Assert AWS secrets from variable group (env type)
   ansible.builtin.assert:

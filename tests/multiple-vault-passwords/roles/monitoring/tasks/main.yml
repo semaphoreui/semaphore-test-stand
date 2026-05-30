@@ -11,7 +11,7 @@
 
 - name: Deplay before asserting
   ansible.builtin.pause:
-    seconds: 10 
+    seconds: 5
 
 - name: Show what monitoring received after decryption
   ansible.builtin.debug:
