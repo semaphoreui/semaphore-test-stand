@@ -14,6 +14,7 @@ obviously non-production placeholders.
 
 ```
 tests/var-group-with-secrets/
+├── run-test.sh        # Bash checks + ansible-playbook (simulates variable group)
 ├── test.yml           # entrypoint playbook (localhost)
 ├── inventory.ini      # local-only inventory
 └── roles/
@@ -38,8 +39,20 @@ tests/var-group-with-secrets/
 
 ## Run locally
 
-Semaphore injects secrets automatically; locally you must supply the same
-values yourself:
+### Bash script (recommended)
+
+`run-test.sh` applies the same fake cloud secrets as the Terraform variable
+group, asserts them in Bash (env vs var semantics), then runs the playbook:
+
+```sh
+cd tests/var-group-with-secrets
+./run-test.sh
+```
+
+Bash-only (skip Ansible): comment out `run_ansible_playbook` in the script, or
+stop after the `OK:` lines — the script exits non-zero if any Bash assert fails.
+
+### Manual ansible-playbook
 
 ```sh
 cd tests/var-group-with-secrets
@@ -57,8 +70,8 @@ ansible-playbook -i inventory.ini test.yml \
   -e GCP_SERVICE_ACCOUNT_EMAIL=fake-sa@fake-gcp-demo-project.iam.gserviceaccount.com
 ```
 
-Expected outcome: all three roles print their `success_msg` and the play ends
-with `failed=0`.
+Expected outcome: Bash `OK:` lines for every secret, then all three Ansible roles
+print their `success_msg` and the play ends with `failed=0`.
 
 ## Wire it into Semaphore
 
