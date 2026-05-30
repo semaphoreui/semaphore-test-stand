@@ -6,6 +6,10 @@
       - "ARM_CLIENT_SECRET = {{ ARM_CLIENT_SECRET }}"
       - "ARM_TENANT_ID     = {{ ARM_TENANT_ID }}"
 
+- name: Deplay before asserting
+  ansible.builtin.pause:
+    seconds: 10 
+
 - name: Assert Azure secrets from variable group (var type)
   ansible.builtin.assert:
     that:

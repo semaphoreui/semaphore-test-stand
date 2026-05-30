@@ -9,6 +9,10 @@
     file: "{{ playbook_dir }}/files/secrets2.yml"
     name: monitoring
 
+- name: Deplay before asserting
+  ansible.builtin.pause:
+    seconds: 10 
+
 - name: Show what monitoring received after decryption
   ansible.builtin.debug:
     msg:

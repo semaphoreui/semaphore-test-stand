@@ -6,6 +6,10 @@
       - "AWS_SECRET_ACCESS_KEY = {{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
       - "AWS_DEFAULT_REGION    = {{ lookup('env', 'AWS_DEFAULT_REGION') }}"
 
+- name: Deplay before asserting
+  ansible.builtin.pause:
+    seconds: 10 
+
 - name: Assert AWS secrets from variable group (env type)
   ansible.builtin.assert:
     that:
