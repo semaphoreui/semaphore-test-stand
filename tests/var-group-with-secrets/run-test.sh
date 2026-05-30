@@ -127,9 +127,20 @@ main() {
 
   ensure_variable_group
 
+  sleep 5
+
   role_aws
+
+  sleep 5
+
   role_azure
+
+  sleep 5
+
   role_gcp
+
+  sleep 5
+
 
   echo
   echo "PLAY RECAP *********************************************************************"
