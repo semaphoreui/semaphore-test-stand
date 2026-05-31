@@ -1,0 +1,16 @@
+hcloud_token   = "your-hetzner-cloud-api-token"
+ssh_public_key = "ssh-ed25519 AAAA... you@example.com"
+
+# Application secrets (override the insecure placeholders below!)
+db_password                     = "change-me-postgres"
+redis_password                  = "change-me-redis"
+semaphore_admin_password        = "change-me-admin"
+semaphore_access_key_encryption = "generate-with: head -c32 /dev/urandom | base64"
+
+# Optional: register runners automatically on first boot.
+# runner_registration_token = "..."
+
+# Optional overrides
+# server_type       = "cx22"
+# cluster_locations = ["fsn1", "nbg1", "hel1"]
+# runner_locations  = ["fsn1", "nbg1", "hel1"]

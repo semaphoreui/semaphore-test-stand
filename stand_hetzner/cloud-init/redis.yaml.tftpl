@@ -1,0 +1,19 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - redis-server
+
+write_files:
+  - path: /etc/redis/redis.conf.d/semaphore.conf
+    content: |
+      bind 127.0.0.1 ${redis_private_ip}
+      protected-mode yes
+      requirepass ${redis_password}
+      appendonly yes
+
+runcmd:
+  - mkdir -p /etc/redis/redis.conf.d
+  - grep -q "redis.conf.d" /etc/redis/redis.conf || echo "include /etc/redis/redis.conf.d/semaphore.conf" >> /etc/redis/redis.conf
+  - systemctl enable redis-server
+  - systemctl restart redis-server
