@@ -24,4 +24,4 @@ runcmd:
     echo "host ${db_name} ${db_user} ${vpc_ip_range} scram-sha-256" >> "$HBA"
     systemctl enable postgresql
     systemctl restart postgresql
-    sudo -u postgres psql -f /root/init-db.sql
+    sudo -u postgres psql < /root/init-db.sql
