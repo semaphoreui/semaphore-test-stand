@@ -14,8 +14,8 @@ resource "semaphoreui_project_key" "semaphore_test_stand" {
 
 resource "semaphoreui_project_repository" "semaphore_test_stand" {
   project_id = semaphoreui_project.test_1.id
-  name       = "semaphore-test-stand"
-  url        = "git@github.com:semaphoreui/semaphore-test-stand.git"
+  name       = "semaphore-test-stand-tests"
+  url        = "git@github.com:semaphoreui/semaphore-test-stand-tests.git"
   branch     = "main"
   ssh_key_id = semaphoreui_project_key.semaphore_test_stand.id
 }
@@ -80,7 +80,7 @@ resource "semaphoreui_project_template" "multiple_vault_passwords" {
   inventory_id   = semaphoreui_project_inventory.localhost.id
   repository_id  = semaphoreui_project_repository.semaphore_test_stand.id
   name           = "multiple-vault-passwords"
-  playbook       = "tests/multiple-vault-passwords/test.yml"
+  playbook       = "multiple-vault-passwords/test.yml"
 
   vaults = [
     {

@@ -56,7 +56,7 @@ resource "semaphoreui_project_template" "var_group_with_secrets" {
   repository_id  = semaphoreui_project_repository.semaphore_test_stand.id
   name           = "var-group-with-secrets"
   app            = "ansible"
-  playbook       = "tests/var-group-with-secrets/test.yml"
+  playbook       = "var-group-with-secrets/test.yml"
   description    = "Ansible playbook: assert variable group env/var secrets"
 }
 
@@ -67,6 +67,6 @@ resource "semaphoreui_project_template" "var_group_with_secrets_bash" {
   repository_id  = semaphoreui_project_repository.semaphore_test_stand.id
   name           = "var-group-with-secrets-bash"
   app            = "bash"
-  playbook       = "tests/var-group-with-secrets/run-test.sh"
+  playbook       = "var-group-with-secrets/run-test.sh"
   description    = "Bash script: same checks as test.yml (aws/azure/gcp roles)"
 }
