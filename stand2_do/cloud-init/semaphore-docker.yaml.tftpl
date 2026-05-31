@@ -3,40 +3,40 @@ package_update: true
 package_upgrade: true
 packages:
   - docker.io
+  - docker-compose-v2
 
 write_files:
-  - path: /etc/semaphore/config.json
+  - path: /opt/semaphore/docker-compose.yml
     permissions: "0600"
     content: |
-      {
-        "postgres": {
-          "host": "${db_host}:5432",
-          "user": "${db_user}",
-          "pass": "${db_password}",
-          "name": "${db_name}"
-        },
-        "dialect": "postgres",
-        "redis": {
-          "host": "${redis_host}:6379",
-          "password": "${redis_password}",
-          "db": 0
-        },
-        "port": ":3000",
-        "web_host": "${web_root}",
-        "access_key_encryption": "${access_key_encryption}",
-        "email_alert": false
-      }
+      services:
+        semaphore:
+          image: semaphoreui/semaphore:latest
+          restart: unless-stopped
+          ports:
+            - "3000:3000"
+          environment:
+            SEMAPHORE_DB_DIALECT: postgres
+            SEMAPHORE_DB_HOST: ${db_host}
+            SEMAPHORE_DB_PORT: "5432"
+            SEMAPHORE_DB_USER: ${db_user}
+            SEMAPHORE_DB_PASS: ${db_password}
+            SEMAPHORE_DB_NAME: ${db_name}
+            SEMAPHORE_REDIS_HOST: ${redis_host}
+            SEMAPHORE_REDIS_PORT: "6379"
+            SEMAPHORE_REDIS_PASSWORD: ${redis_password}
+            SEMAPHORE_REDIS_DB: "0"
+            SEMAPHORE_PORT: ":3000"
+            SEMAPHORE_WEB_ROOT: ${web_root}
+            SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${access_key_encryption}
+            SEMAPHORE_EMAIL_ALERT: "False"
+            SEMAPHORE_ADMIN: ${admin_user}
+            SEMAPHORE_ADMIN_PASSWORD: ${admin_password}
+            SEMAPHORE_ADMIN_NAME: Admin
+            SEMAPHORE_ADMIN_EMAIL: ${admin_email}
 
 runcmd:
   - systemctl enable --now docker
-  # Run database migrations (idempotent; safe to run from every node).
-  - docker run --rm -v /etc/semaphore:/etc/semaphore semaphoreui/semaphore:latest semaphore migrate --config /etc/semaphore/config.json
-  - |
-    docker run -d --name semaphore --restart unless-stopped \
-      -p 3000:3000 \
-      -v /etc/semaphore:/etc/semaphore \
-      -e SEMAPHORE_ADMIN=${admin_user} \
-      -e SEMAPHORE_ADMIN_PASSWORD=${admin_password} \
-      -e SEMAPHORE_ADMIN_NAME=Admin \
-      -e SEMAPHORE_ADMIN_EMAIL=${admin_email} \
-      semaphoreui/semaphore:latest semaphore server --config /etc/semaphore/config.json
+  # The semaphore image entrypoint runs migrations and bootstraps the admin
+  # user from the environment variables above before starting the server.
+  - docker compose -f /opt/semaphore/docker-compose.yml up -d
