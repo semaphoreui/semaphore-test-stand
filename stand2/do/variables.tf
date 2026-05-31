@@ -110,6 +110,18 @@ variable "semaphore_admin_email" {
   default     = "admin@example.com"
 }
 
+variable "semaphore_cookie_hash" {
+  description = "Base64 32-byte key used by Semaphore to hash cookies (shared across the cluster). Generate with: head -c32 /dev/urandom | base64"
+  type        = string
+  sensitive   = true
+}
+
+variable "semaphore_cookie_encryption" {
+  description = "Base64 32-byte key used by Semaphore to encrypt cookies (shared across the cluster). Generate with: head -c32 /dev/urandom | base64"
+  type        = string
+  sensitive   = true
+}
+
 variable "semaphore_access_key_encryption" {
   description = "Base64 32-byte key used by Semaphore to encrypt access keys (shared across the cluster). Generate with: head -c32 /dev/urandom | base64"
   type        = string
