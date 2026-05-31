@@ -8,10 +8,6 @@ resource "digitalocean_tag" "ui" {
   name = "${var.prefix}-ui"
 }
 
-resource "digitalocean_tag" "runner" {
-  name = "${var.prefix}-runner"
-}
-
 resource "digitalocean_tag" "database" {
   name = "${var.prefix}-database"
 }

@@ -1,1 +1,8 @@
 /semaphore_test_stand
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.tfplan
+.terraform.tfstate.lock.info

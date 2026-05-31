@@ -9,7 +9,7 @@ resource "digitalocean_project" "main" {
 
   resources = concat(
     [for d in digitalocean_droplet.cluster : d.urn],
-    [for d in digitalocean_droplet.runner : d.urn],
+    # [for d in digitalocean_droplet.runner : d.urn],
     [
       digitalocean_droplet.postgres.urn,
       digitalocean_droplet.redis.urn,
