@@ -10,7 +10,7 @@ resource "digitalocean_droplet" "runner" {
   ssh_keys = [digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.runner.id]
 
-  user_data = templatefile("${path.module}/cloud-init/runner.yaml.tftpl", {
+  user_data = templatefile("${path.module}/cloud-init/runner-systemd.yaml.tftpl", {
     web_root           = "https://${local.lb_fqdn}"
     registration_token = var.runner_registration_token
   })
