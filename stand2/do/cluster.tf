@@ -20,6 +20,8 @@ resource "digitalocean_droplet" "cluster" {
     redis_host            = digitalocean_droplet.redis.ipv4_address_private
     redis_password        = var.redis_password
     web_root              = "https://${local.lb_fqdn}"
+    coolkie_hash          = var.semaphore_coolkie_hash
+    coolkie_encryption    = var.semaphore_coolkie_encryption
     access_key_encryption = var.semaphore_access_key_encryption
     admin_user            = var.semaphore_admin_user
     admin_password        = var.semaphore_admin_password
