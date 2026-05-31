@@ -10,14 +10,19 @@ provider.
 | Resource              | Count | Type        | Notes                                              |
 | --------------------- | ----- | ----------- | -------------------------------------------------- |
 | Load balancer         | 1     | `lb11`      | Public `:80` → cluster `:3000`, HTTP health check  |
-| Semaphore UI cluster  | 3     | `cx22`      | One per zone (`fsn1`, `nbg1`, `hel1`)              |
-| Semaphore runners     | 3     | `cx22`      | Execute tasks, reach the cluster via the LB        |
-| PostgreSQL            | 1     | `cx22`      | Shared database for the cluster                    |
-| Redis                 | 1     | `cx22`      | Shared cache/session store                         |
+| Semaphore UI cluster  | 3     | `cx23`      | One per zone (`fsn1`, `nbg1`, `hel1`)              |
+| Semaphore runners     | 3     | `cx23`      | Execute tasks, reach the cluster via the LB        |
+| PostgreSQL            | 1     | `cx23`      | Shared database for the cluster                    |
+| Redis                 | 1     | `cx23`      | Shared cache/session store                         |
 
 All servers join a private network (`10.0.0.0/16`, subnet `10.0.1.0/24`) with
 static internal IPs so cloud-init can wire services together at boot. Public
 firewall allows SSH, `:3000`, and ICMP; private traffic is unfiltered.
+
+To stay within the project's IPv4 quota, **Postgres and Redis are IPv6-only**
+(no public IPv4) — they're reached over the private network. SSH to them via a
+cluster node as a jump host, or over IPv6 directly. The cluster and runner
+nodes keep public IPv4 because they pull images from Docker Hub.
 
 ## Software provisioning (cloud-init)
 

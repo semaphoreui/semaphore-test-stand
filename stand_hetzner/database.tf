@@ -10,12 +10,18 @@ resource "hcloud_server" "postgres" {
     stack = var.prefix
   }
 
+  # IPv6-only: never needs a public IPv4; reachable internally via the network.
+  public_net {
+    ipv4_enabled = false
+    ipv6_enabled = true
+  }
+
   user_data = templatefile("${path.module}/cloud-init/postgres.yaml.tftpl", {
-    db_name        = var.db_name
-    db_user        = var.db_user
-    db_password    = var.db_password
-    db_private_ip  = local.db_private_ip
-    subnet_cidr    = local.subnet_cidr
+    db_name       = var.db_name
+    db_user       = var.db_user
+    db_password   = var.db_password
+    db_private_ip = local.db_private_ip
+    subnet_cidr   = local.subnet_cidr
   })
 
   network {
@@ -36,6 +42,12 @@ resource "hcloud_server" "redis" {
   labels = {
     role  = "redis"
     stack = var.prefix
+  }
+
+  # IPv6-only: never needs a public IPv4; reachable internally via the network.
+  public_net {
+    ipv4_enabled = false
+    ipv6_enabled = true
   }
 
   user_data = templatefile("${path.module}/cloud-init/redis.yaml.tftpl", {

@@ -1,5 +1,5 @@
-variable "hcloud_token" {
-  description = "Hetzner Cloud API token (or set HCLOUD_TOKEN)."
+variable "do_token" {
+  description = "DigitalOcean API token (or set DIGITALOCEAN_TOKEN)."
   type        = string
   sensitive   = true
 }
@@ -11,50 +11,42 @@ variable "prefix" {
 }
 
 variable "ssh_public_key" {
-  description = "SSH public key contents granted access to every server."
+  description = "SSH public key contents granted access to every droplet."
   type        = string
 }
 
-variable "server_type" {
-  description = "Hetzner server type used for all 'small' servers."
+variable "size" {
+  description = "Droplet size slug used for all 'small' droplets."
   type        = string
-  default     = "cx23" # 2 vCPU / 4 GB shared (smallest x86 in fsn1/nbg1/hel1)
-}
-
-variable "lb_type" {
-  description = "Hetzner load balancer type."
-  type        = string
-  default     = "lb11"
+  default     = "s-1vcpu-2gb"
 }
 
 variable "image" {
-  description = "OS image for all servers."
+  description = "OS image slug for all droplets."
   type        = string
-  default     = "ubuntu-24.04"
+  default     = "ubuntu-24-04-x64"
 }
 
-variable "lb_location" {
-  description = "Location for the load balancer (must be in the network zone)."
+variable "region" {
+  description = <<-EOT
+    DigitalOcean region for all resources. DigitalOcean does not expose
+    availability zones, and a VPC + load balancer are regional, so the whole
+    cluster lives in one region.
+  EOT
   type        = string
-  default     = "fsn1"
+  default     = "fra1"
 }
 
-variable "cluster_locations" {
-  description = "Locations for the 3 Semaphore UI cluster servers (different zones)."
-  type        = list(string)
-  default     = ["fsn1", "nbg1", "hel1"]
-}
-
-variable "runner_locations" {
-  description = "Locations for the 3 Semaphore runner servers."
-  type        = list(string)
-  default     = ["fsn1", "nbg1", "hel1"]
-}
-
-variable "network_zone" {
-  description = "Private network zone (all locations above must belong to it)."
+variable "project_environment" {
+  description = "DigitalOcean project environment (Development, Staging, or Production)."
   type        = string
-  default     = "eu-central"
+  default     = "Development"
+}
+
+variable "vpc_ip_range" {
+  description = "Private VPC CIDR. Postgres allows connections from this range."
+  type        = string
+  default     = "10.10.10.0/24"
 }
 
 # --- Application secrets / config -------------------------------------------

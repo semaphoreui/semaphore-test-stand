@@ -1,4 +1,4 @@
-hcloud_token   = "your-hetzner-cloud-api-token"
+do_token       = "your-digitalocean-api-token"
 ssh_public_key = "ssh-ed25519 AAAA... you@example.com"
 
 # Application secrets (override the insecure placeholders below!)
@@ -11,6 +11,5 @@ semaphore_access_key_encryption = "generate-with: head -c32 /dev/urandom | base6
 # runner_registration_token = "..."
 
 # Optional overrides
-# server_type       = "cx23"   # or cax11 (ARM, cheapest), cpx22 (AMD)
-# cluster_locations = ["fsn1", "nbg1", "hel1"]
-# runner_locations  = ["fsn1", "nbg1", "hel1"]
+# region = "fra1"   # nyc1/nyc3/sfo3/ams3/lon1/sgp1/tor1/blr1/syd1
+# size   = "s-1vcpu-2gb"

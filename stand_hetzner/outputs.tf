@@ -31,17 +31,17 @@ output "runner_servers" {
 }
 
 output "postgres_server" {
-  description = "PostgreSQL server."
+  description = "PostgreSQL server (IPv6-only, internal access via private_ip)."
   value = {
-    public_ip  = hcloud_server.postgres.ipv4_address
-    private_ip = local.db_private_ip
+    public_ipv6 = hcloud_server.postgres.ipv6_address
+    private_ip  = local.db_private_ip
   }
 }
 
 output "redis_server" {
-  description = "Redis server."
+  description = "Redis server (IPv6-only, internal access via private_ip)."
   value = {
-    public_ip  = hcloud_server.redis.ipv4_address
-    private_ip = local.redis_private_ip
+    public_ipv6 = hcloud_server.redis.ipv6_address
+    private_ip  = local.redis_private_ip
   }
 }
