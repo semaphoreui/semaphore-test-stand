@@ -37,6 +37,23 @@ variable "region" {
   default     = "fra1"
 }
 
+variable "parent_domain" {
+  description = "Parent domain hosted in Cloudflare (e.g. semaphoreui.dev). The '<prefix>.<parent_domain>' sub-zone is delegated to DigitalOcean nameservers."
+  type        = string
+}
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token with DNS edit + zone read on the parent domain (or set CLOUDFLARE_API_TOKEN)."
+  type        = string
+  sensitive   = true
+}
+
+variable "lb_subdomain" {
+  description = "Label for the load balancer hostname within the delegated zone, i.e. <lb_subdomain>.<prefix>.<parent_domain>."
+  type        = string
+  default     = "lb"
+}
+
 variable "project_environment" {
   description = "DigitalOcean project environment (Development, Staging, or Production)."
   type        = string

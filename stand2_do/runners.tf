@@ -11,7 +11,10 @@ resource "digitalocean_droplet" "runner" {
   tags     = [digitalocean_tag.base.id, digitalocean_tag.runner.id]
 
   user_data = templatefile("${path.module}/cloud-init/runner.yaml.tftpl", {
-    server_host        = digitalocean_loadbalancer.main.ip
+    web_root           = "https://${local.lb_fqdn}"
     registration_token = var.runner_registration_token
   })
+
+  # Runners register over https://var.domain, so the LB + DNS must exist first.
+  depends_on = [digitalocean_record.lb]
 }

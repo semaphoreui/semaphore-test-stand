@@ -3,8 +3,18 @@ output "project_id" {
   value       = digitalocean_project.main.id
 }
 
+output "semaphore_url" {
+  description = "HTTPS entry point for the Semaphore UI."
+  value       = "https://${local.lb_fqdn}"
+}
+
+output "delegated_zone" {
+  description = "Sub-zone to delegate to DigitalOcean nameservers via NS records in the parent domain."
+  value       = local.dns_zone
+}
+
 output "load_balancer_ip" {
-  description = "Public IP of the load balancer (Semaphore UI entry point on :80)."
+  description = "Public IP of the load balancer (HTTPS :443, HTTP :80 redirects)."
   value       = digitalocean_loadbalancer.main.ip
 }
 

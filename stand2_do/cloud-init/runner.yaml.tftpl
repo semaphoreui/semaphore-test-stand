@@ -9,7 +9,7 @@ write_files:
     permissions: "0600"
     content: |
       {
-        "web_host": "http://${server_host}",
+        "web_host": "${web_root}",
         "runner": {
           "registration_token": "${registration_token}",
           "config_file": "/etc/semaphore/runner_state.json"

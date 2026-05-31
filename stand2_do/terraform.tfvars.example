@@ -1,5 +1,13 @@
-do_token       = "your-digitalocean-api-token"
-ssh_public_key = "ssh-ed25519 AAAA... you@example.com"
+do_token             = "your-digitalocean-api-token"
+cloudflare_api_token = "your-cloudflare-api-token" # DNS edit + zone read on parent_domain
+ssh_public_key       = "ssh-ed25519 AAAA... you@example.com"
+
+# Load balancer SSL (Let's Encrypt).
+# The sub-zone "<prefix>.<parent_domain>" must be delegated to DigitalOcean
+# nameservers (NS records in the parent domain's DNS, e.g. Cloudflare).
+# With prefix="semaphore" this yields LB host: lb.semaphore.semaphoreui.dev
+parent_domain = "semaphoreui.dev"
+# lb_subdomain = "lb"   # optional, default "lb"
 
 # Application secrets (override the insecure placeholders below!)
 db_password                     = "change-me-postgres"

@@ -9,7 +9,7 @@ provider.
 
 | Resource              | Count | Size          | Notes                                             |
 | --------------------- | ----- | ------------- | ------------------------------------------------- |
-| Load balancer         | 1     | regional      | Public `:80` → cluster `:3000`, HTTP health check |
+| Load balancer         | 1     | regional      | HTTPS `:443` → cluster `:3000`, HTTP→HTTPS redirect |
 | Semaphore UI cluster  | 3     | `s-1vcpu-2gb` | Behind the LB (see *Zones* below)                 |
 | Semaphore runners     | 3     | `s-1vcpu-2gb` | Execute tasks, reach the cluster via the LB       |
 | PostgreSQL            | 1     | `s-1vcpu-2gb` | Shared database for the cluster                   |
@@ -18,6 +18,37 @@ provider.
 All droplets join one VPC (`10.10.10.0/24`). A DigitalOcean Cloud Firewall
 allows SSH and `:3000` from anywhere, Postgres/Redis only from the VPC, and all
 egress.
+
+### TLS / SSL (subdomain delegation)
+
+The load balancer terminates TLS with a DigitalOcean-managed **Let's Encrypt**
+certificate and redirects HTTP→HTTPS. The hostnames are derived from
+`var.prefix` + `var.parent_domain`:
+
+- Delegated DO zone: `<prefix>.<parent_domain>` (e.g. `stand2.semaphoreui.dev`)
+- LB hostname / cert: `<lb_subdomain>.<prefix>.<parent_domain>`
+  (e.g. `lb.stand2.semaphoreui.dev`)
+
+The parent domain (`semaphoreui.dev`) stays hosted on **Cloudflare**. Terraform
+manages the whole delegation automatically ([cloudflare.tf](cloudflare.tf)):
+
+1. `digitalocean_domain` creates the `<prefix>.<parent_domain>` sub-zone in
+   DigitalOcean.
+2. `cloudflare_record` adds three `NS` records on the `<prefix>` label in the
+   Cloudflare parent zone, pointing at DigitalOcean's nameservers
+   (`ns1/ns2/ns3.digitalocean.com`).
+3. Once delegation propagates, DigitalOcean issues the Let's Encrypt cert and
+   the LB serves `https://lb.<prefix>.<parent_domain>`.
+
+This needs a `cloudflare_api_token` with **DNS edit** + **zone read** on the
+parent domain. Semaphore and the runners are configured with
+`web_host = https://<lb_fqdn>` so redirects, cookies and runner registration
+work over TLS.
+
+> **Note:** Let's Encrypt validation can't succeed until the NS delegation has
+> propagated. On a cold `terraform apply` the certificate may report `pending`;
+> re-run `terraform apply` (or `terraform apply -replace=digitalocean_certificate.main`)
+> after delegation is live.
 
 ### Zones
 
