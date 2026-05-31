@@ -1,6 +1,9 @@
 #cloud-config
 package_update: true
 package_upgrade: true
+packages:
+  # psql is used to serialize schema migrations across nodes via an advisory lock.
+  - postgresql-client
 
 write_files:
   - path: /etc/semaphore/config.json
@@ -56,6 +59,24 @@ runcmd:
   # Dedicated unprivileged user to run the service.
   - id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore
   - chown -R semaphore:semaphore /etc/semaphore
-  # Run database migrations (idempotent; safe to run from every node).
+  # Serialize schema migrations across all cluster nodes. A Postgres session-level
+  # advisory lock guarantees only one node runs `semaphore migrate` at a time:
+  # the others block until it is released, then find the schema already current
+  # (migrate is idempotent when run sequentially). This avoids the concurrent-
+  # migration races you get when 3 nodes boot and migrate the shared DB at once.
+  # The lock is held for the duration of the migrate via psql's `\!` shell escape,
+  # since the lock lives only as long as the psql session.
+  - |
+    export PGPASSWORD='${db_password}'
+    until pg_isready -h ${db_host} -p 5432 -U ${db_user} -d ${db_name}; do
+      echo "waiting for postgres..."; sleep 2
+    done
+    psql -h ${db_host} -p 5432 -U ${db_user} -d ${db_name} -v ON_ERROR_STOP=1 <<'EOSQL'
+    SELECT pg_advisory_lock(8675309);
+    \! /usr/local/bin/semaphore migrate --config /etc/semaphore/config.json
+    SELECT pg_advisory_unlock(8675309);
+    EOSQL
+  # Schema is now current, so the 3 servers can start concurrently safely
+  # (their startup migration check just sees nothing pending).
   - systemctl daemon-reload
   - systemctl enable --now semaphore
