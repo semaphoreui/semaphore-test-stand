@@ -1,0 +1,61 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+write_files:
+  - path: /etc/semaphore/config.json
+    permissions: "0600"
+    content: |
+      {
+        "postgres": {
+          "host": "${db_host}:5432",
+          "user": "${db_user}",
+          "pass": "${db_password}",
+          "name": "${db_name}"
+        },
+        "dialect": "postgres",
+        "redis": {
+          "host": "${redis_host}:6379",
+          "password": "${redis_password}",
+          "db": 0
+        },
+        "port": ":3000",
+        "web_host": "${web_root}",
+        "access_key_encryption": "${access_key_encryption}",
+        "email_alert": false
+      }
+
+  - path: /etc/systemd/system/semaphore.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Semaphore UI
+      Documentation=https://docs.semaphoreui.com
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      User=semaphore
+      Group=semaphore
+      Environment=SEMAPHORE_ADMIN=${admin_user}
+      Environment=SEMAPHORE_ADMIN_PASSWORD=${admin_password}
+      Environment=SEMAPHORE_ADMIN_NAME=Admin
+      Environment=SEMAPHORE_ADMIN_EMAIL=${admin_email}
+      ExecStart=/usr/local/bin/semaphore server --config /etc/semaphore/config.json
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - curl -o semaphore_2.18.4_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.4/semaphore_2.18.4_linux_amd64.tar.gz
+  - tar xf semaphore_2.18.4_linux_amd64.tar.gz
+  - sudo mv semaphore /usr/local/bin/
+  # Dedicated unprivileged user to run the service.
+  - id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore
+  - chown -R semaphore:semaphore /etc/semaphore
+  # Run database migrations (idempotent; safe to run from every node).
+  - systemctl daemon-reload
+  - systemctl enable --now semaphore

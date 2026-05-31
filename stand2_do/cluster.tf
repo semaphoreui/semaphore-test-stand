@@ -12,7 +12,7 @@ resource "digitalocean_droplet" "cluster" {
   ssh_keys = [digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.ui.id]
 
-  user_data = templatefile("${path.module}/cloud-init/semaphore.yaml.tftpl", {
+  user_data = templatefile("${path.module}/cloud-init/semaphore-systemd.yaml.tftpl", {
     db_host               = digitalocean_droplet.postgres.ipv4_address_private
     db_name               = var.db_name
     db_user               = var.db_user
