@@ -35,7 +35,7 @@ write_files:
       Type=simple
       User=semaphore
       Group=semaphore
-      ExecStart=/usr/local/bin/semaphore runner --config /etc/semaphore/runner-config.json
+      ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
       Restart=on-failure
       RestartSec=5
 
@@ -43,8 +43,8 @@ write_files:
       WantedBy=multi-user.target
 
 runcmd:
-  - curl -o semaphore_2.18.4_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.4/semaphore_2.18.4_linux_amd64.tar.gz
-  - tar xf semaphore_2.18.4_linux_amd64.tar.gz
+  - curl -o semaphore_2.18.6-beta1_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.6-beta1/semaphore_2.18.6-beta1_linux_amd64.tar.gz
+  - tar xf semaphore_2.18.6-beta1_linux_amd64.tar.gz
   - sudo mv semaphore /usr/local/bin/
   # Dedicated unprivileged user to run the service.
   - id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore

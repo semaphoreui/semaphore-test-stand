@@ -1,7 +1,7 @@
 # DigitalOcean Cloud Firewalls filter both public and private (VPC) traffic,
 # so internal Postgres/Redis access is opened explicitly to the VPC range.
 resource "digitalocean_firewall" "runner" {
-  name = "${var.prefix}-runner"
+  name = "${var.prefix}-runner2"
   tags = [digitalocean_tag.runner.id]
 
   # --- Inbound ---
