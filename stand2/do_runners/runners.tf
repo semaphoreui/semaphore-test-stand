@@ -1,3 +1,10 @@
+resource "semaphoreui_runner" "runner" {
+  name               = "local-dev-runner"
+  max_parallel_tasks = 1
+  active             = true
+  tags               = ["local", "dev"]
+}
+
 # 3 Semaphore runner droplets. They reach the cluster through the load balancer.
 resource "digitalocean_droplet" "runner" {
   count    = 3
@@ -11,6 +18,7 @@ resource "digitalocean_droplet" "runner" {
   tags     = [digitalocean_tag.runner.id, digitalocean_tag.runner.id]
 
   user_data = templatefile("${path.module}/cloud-init/runner-systemd.yaml.tftpl", {
-    web_root           = "https://lb.stand2.semaphoreui.dev"
+    web_root           = "https://lb.stand2.semaphoreui.dev",
+    runner_registration_token = semaphoreui_runner.runner.registration_token,
   })
 }
