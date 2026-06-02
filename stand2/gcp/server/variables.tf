@@ -138,3 +138,9 @@ variable "runner_registration_token" {
   default     = ""
   sensitive   = true
 }
+
+variable "semaphore_version" {
+  description = "Semaphore runner version (or set SEMAPHORE_RUNNER_VERSION)."
+  type        = string
+  default     = "2.18.6-beta1"
+}

@@ -1,6 +1,10 @@
 # Semaphore UI instances behind the load balancer. They share one zone/subnet.
 # Private IPs of Postgres and Redis are resolved from their instance resources
 # (created first).
+resource "terraform_data" "cluster_replace_on_semaphore_version" {
+  input = var.semaphore_version
+}
+
 resource "google_compute_instance" "cluster" {
   count        = 1
   name         = "${var.prefix}-ui-${count.index + 1}"
@@ -35,6 +39,11 @@ resource "google_compute_instance" "cluster" {
       admin_user            = var.semaphore_admin_user
       admin_password        = var.semaphore_admin_password
       admin_email           = var.semaphore_admin_email
+      semaphore_version     = var.semaphore_version
     })
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.cluster_replace_on_semaphore_version]
   }
 }

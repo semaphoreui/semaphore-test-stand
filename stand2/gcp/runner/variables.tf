@@ -53,7 +53,7 @@ variable "web_root" {
 variable "semaphore_version" {
   description = "Semaphore runner version (or set SEMAPHORE_RUNNER_VERSION)."
   type        = string
-  default     = "2.18.6-beta1"
+  default     = "2.18.6-beta5"
 }
 
 variable "api_token" {
