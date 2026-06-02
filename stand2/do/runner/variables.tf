@@ -37,18 +37,6 @@ variable "region" {
   default     = "fra1"
 }
 
-variable "project_environment" {
-  description = "DigitalOcean project environment (Development, Staging, or Production)."
-  type        = string
-  default     = "Development"
-}
-
-variable "vpc_ip_range" {
-  description = "Private VPC CIDR. Postgres allows connections from this range."
-  type        = string
-  default     = "10.10.10.0/24"
-}
-
 variable "web_root" {
   description = "Semaphore API base URL (or set SEMAPHOREUI_API_BASE_URL)."
   type        = string
