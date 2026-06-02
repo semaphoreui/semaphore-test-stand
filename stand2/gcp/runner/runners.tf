@@ -37,98 +37,61 @@ resource "google_compute_instance" "runner" {
   metadata = {
     ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
   }
+}
 
-  # Unlike DigitalOcean's root droplets, GCE has no root SSH: connect as the
-  # key's user and elevate with sudo. The host is the instance's private IP, so
-  # Terraform must run with network access to the VPC (e.g. an IAP tunnel, a
-  # bastion, or in-VPC) to reach it.
-  connection {
-    type = "ssh"
-    user = var.ssh_user
-    host = self.network_interface[0].network_ip
-  }
+# The instances have no public IP (org policy), so Terraform cannot SSH to them
+# directly. Provisioning therefore runs locally via `gcloud ... --tunnel-through-iap`,
+# which reaches the private instance over Google's Identity-Aware Proxy. This
+# requires the gcloud CLI to be authenticated (`gcloud auth login`) and the
+# caller to hold roles/iap.tunnelResourceAccessor on the project.
+resource "terraform_data" "provision" {
+  for_each = var.runners
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mkdir -p /etc/semaphore",
-      # jq parses the registration-token response; ensure it and curl are present.
-      "sudo apt-get update -y",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jq curl",
-    ]
-  }
+  # Re-run provisioning if the instance or the Semaphore runner is recreated.
+  triggers_replace = [
+    google_compute_instance.runner[each.key].id,
+    semaphoreui_runner.runner[each.key].id,
+  ]
 
-  provisioner "file" {
-    content     = <<-EOT
-      {
-        "web_host": "${var.web_root}",
-        "runner": {
-          "web_host": "${var.web_root}",
-          "token_file": "/etc/semaphore/runner.token",
-          "private_key_file": "/etc/semaphore/runner.key",
-          "name": "${var.prefix}-${each.value.name}",
-          "tags": [
-            "local",
-            "dev"
-          ]
-        }
-      }
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+
+    environment = {
+      PROJECT  = var.gcp_project
+      ZONE     = var.zone
+      INSTANCE = google_compute_instance.runner[each.key].name
+      # Fully rendered by Terraform (secrets included); passed as a single env
+      # var to avoid heredoc/indentation pitfalls.
+      PROVISION_SCRIPT = templatefile("${path.module}/provision.sh.tftpl", {
+        web_root          = var.web_root
+        api_base_url      = local.api_base_url
+        api_token         = var.api_token
+        runner_id         = semaphoreui_runner.runner[each.key].id
+        semaphore_version = var.semaphore_version
+        runner_name       = "${var.prefix}-${each.value.name}"
+      })
+    }
+
+    command = <<-EOT
+      set -euo pipefail
+      TMP=$(mktemp -d)
+      printf '%s' "$PROVISION_SCRIPT" > "$TMP/provision.sh"
+
+      echo "Waiting for SSH (IAP) on $INSTANCE ..."
+      for i in $(seq 1 30); do
+        if gcloud compute ssh "$INSTANCE" --zone "$ZONE" --project "$PROJECT" \
+             --tunnel-through-iap --quiet --command "true" 2>/dev/null; then
+          break
+        fi
+        sleep 10
+      done
+
+      # Ship the script over IAP and run it with sudo on the private instance.
+      gcloud compute scp "$TMP/provision.sh" "$INSTANCE":/tmp/provision.sh \
+        --zone "$ZONE" --project "$PROJECT" --tunnel-through-iap --quiet
+
+      gcloud compute ssh "$INSTANCE" --zone "$ZONE" --project "$PROJECT" \
+        --tunnel-through-iap --quiet --command "sudo bash /tmp/provision.sh"
     EOT
-    destination = "/tmp/runner-config.json"
-  }
-
-  provisioner "file" {
-    content     = <<-EOT
-      [Unit]
-      Description=Semaphore Runner
-      Documentation=https://docs.semaphoreui.com
-      After=network-online.target
-      Wants=network-online.target
-
-      [Service]
-      Type=simple
-      User=semaphore
-      Group=semaphore
-      ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
-      Restart=on-failure
-      RestartSec=5
-
-      [Install]
-      WantedBy=multi-user.target
-    EOT
-    destination = "/tmp/semaphore-runner.service"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mv /tmp/runner-config.json /etc/semaphore/runner-config.json",
-      "sudo mv /tmp/semaphore-runner.service /etc/systemd/system/semaphore-runner.service",
-
-      "curl -o semaphore_${var.semaphore_version}_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v${var.semaphore_version}/semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
-      "tar xf semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
-      "sudo mv semaphore /usr/local/bin/",
-
-      "id -u semaphore >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin semaphore",
-      "sudo chmod 0600 /etc/semaphore/runner-config.json",
-      "sudo chmod 0644 /etc/systemd/system/semaphore-runner.service",
-      "sudo chown -R semaphore:semaphore /etc/semaphore",
-      "sudo systemctl daemon-reload",
-    ]
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      <<-EOT
-        curl -XPOST \
-          -H 'Authorization: Bearer ${var.api_token}' \
-          -H 'content-type: application/json' \
-          ${local.api_base_url}/runners/${semaphoreui_runner.runner[each.key].id}/registration-token \
-          | jq -r .registration_token \
-          | sudo /usr/local/bin/semaphore runner register \
-              --stdin-registration-token \
-              --config /etc/semaphore/runner-config.json
-      EOT
-      ,
-      "sudo systemctl enable --now semaphore-runner",
-    ]
   }
 }

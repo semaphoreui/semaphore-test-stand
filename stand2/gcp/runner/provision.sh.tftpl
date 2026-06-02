@@ -1,0 +1,65 @@
+set -e
+
+sudo mkdir -p /etc/semaphore
+
+cat > /tmp/runner-config.json <<'JSON'
+{
+  "web_host": "${web_root}",
+  "runner": {
+    "web_host": "${web_root}",
+    "token_file": "/etc/semaphore/runner.token",
+    "private_key_file": "/etc/semaphore/runner.key",
+    "name": "${runner_name}",
+    "tags": [
+      "local",
+      "dev"
+    ]
+  }
+}
+JSON
+sudo mv /tmp/runner-config.json /etc/semaphore/runner-config.json
+
+cat > /tmp/semaphore-runner.service <<'UNIT'
+[Unit]
+Description=Semaphore Runner
+Documentation=https://docs.semaphoreui.com
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=semaphore
+Group=semaphore
+ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+sudo mv /tmp/semaphore-runner.service /etc/systemd/system/semaphore-runner.service
+
+sudo apt-get update -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jq curl
+
+curl -o semaphore_${semaphore_version}_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.tar.gz
+tar xf semaphore_${semaphore_version}_linux_amd64.tar.gz
+sudo mv semaphore /usr/local/bin/
+
+id -u semaphore >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin semaphore
+sudo chmod 0600 /etc/semaphore/runner-config.json
+sudo chmod 0644 /etc/systemd/system/semaphore-runner.service
+sudo chown -R semaphore:semaphore /etc/semaphore
+sudo systemctl daemon-reload
+
+# Exchange the API token for a one-time runner registration token, then register.
+curl -XPOST \
+  -H 'Authorization: Bearer ${api_token}' \
+  -H 'content-type: application/json' \
+  ${api_base_url}/runners/${runner_id}/registration-token \
+  | jq -r .registration_token \
+  | sudo /usr/local/bin/semaphore runner register \
+      --stdin-registration-token \
+      --config /etc/semaphore/runner-config.json
+
+sudo systemctl enable --now semaphore-runner
