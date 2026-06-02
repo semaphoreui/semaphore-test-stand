@@ -1,0 +1,20 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - redis-server
+
+runcmd:
+  - |
+    set -e
+    PRIV_IP=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
+    mkdir -p /etc/redis/redis.conf.d
+    cat > /etc/redis/redis.conf.d/semaphore.conf <<EOF
+    bind 127.0.0.1 $PRIV_IP
+    protected-mode yes
+    requirepass ${redis_password}
+    appendonly yes
+    EOF
+    grep -q "redis.conf.d" /etc/redis/redis.conf || echo "include /etc/redis/redis.conf.d/semaphore.conf" >> /etc/redis/redis.conf
+    systemctl enable redis-server
+    systemctl restart redis-server

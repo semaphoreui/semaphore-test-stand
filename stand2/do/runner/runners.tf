@@ -22,7 +22,7 @@ resource "digitalocean_droplet" "runner" {
   vpc_uuid = data.digitalocean_vpc.main.id
 
   ssh_keys = [data.digitalocean_ssh_key.default.id]
-  tags     = [digitalocean_tag.runner.id, digitalocean_tag.runner.id]
+  tags     = [digitalocean_tag.runner.id]
 
   connection {
     type        = "ssh"

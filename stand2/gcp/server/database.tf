@@ -1,0 +1,52 @@
+resource "google_compute_instance" "postgres" {
+  name         = "${var.prefix}-postgres"
+  machine_type = var.machine_type
+  zone         = var.zone
+  tags         = [local.tag_base, local.tag_database]
+
+  boot_disk {
+    initialize_params {
+      image = var.image
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.main.id
+    access_config {} # ephemeral public IPv4 (for apt / outbound)
+  }
+
+  metadata = {
+    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    user-data = templatefile("${path.module}/cloud-init/postgres.yaml.tftpl", {
+      db_name      = var.db_name
+      db_user      = var.db_user
+      db_password  = var.db_password
+      vpc_ip_range = var.subnet_ip_range
+    })
+  }
+}
+
+resource "google_compute_instance" "redis" {
+  name         = "${var.prefix}-redis"
+  machine_type = var.machine_type
+  zone         = var.zone
+  tags         = [local.tag_base, local.tag_redis]
+
+  boot_disk {
+    initialize_params {
+      image = var.image
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.main.id
+    access_config {}
+  }
+
+  metadata = {
+    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    user-data = templatefile("${path.module}/cloud-init/redis.yaml.tftpl", {
+      redis_password = var.redis_password
+    })
+  }
+}

@@ -1,0 +1,84 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  # psql is used to serialize schema migrations across nodes via an advisory lock.
+  - postgresql-client
+
+write_files:
+  - path: /etc/semaphore/config.json
+    permissions: "0600"
+    content: |
+      {
+        "postgres": {
+          "host": "${db_host}:5432",
+          "user": "${db_user}",
+          "pass": "${db_password}",
+          "name": "${db_name}"
+        },
+        "dialect": "postgres",
+        "redis": {
+          "host": "${redis_host}:6379",
+          "password": "${redis_password}",
+          "db": 0
+        },
+        "port": ":3000",
+        "web_host": "${web_root}",
+        "cookie_hash": "${cookie_hash}",
+        "cookie_encryption": "${cookie_encryption}",
+        "access_key_encryption": "${access_key_encryption}",
+        "email_alert": false
+      }
+
+  - path: /etc/systemd/system/semaphore.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Semaphore UI
+      Documentation=https://docs.semaphoreui.com
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      User=semaphore
+      Group=semaphore
+      Environment=SEMAPHORE_ADMIN=${admin_user}
+      Environment=SEMAPHORE_ADMIN_PASSWORD=${admin_password}
+      Environment=SEMAPHORE_ADMIN_NAME=Admin
+      Environment=SEMAPHORE_ADMIN_EMAIL=${admin_email}
+      ExecStart=/usr/local/bin/semaphore server --config /etc/semaphore/config.json
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - curl -o semaphore_2.18.6-beta1_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.6-beta1/semaphore_2.18.6-beta1_linux_amd64.tar.gz
+  - tar xf semaphore_2.18.6-beta1_linux_amd64.tar.gz
+  - sudo mv semaphore /usr/local/bin/
+  # Dedicated unprivileged user to run the service.
+  - id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore
+  - chown -R semaphore:semaphore /etc/semaphore
+  # Serialize schema migrations across all cluster nodes. A Postgres session-level
+  # advisory lock guarantees only one node runs `semaphore migrate` at a time:
+  # the others block until it is released, then find the schema already current
+  # (migrate is idempotent when run sequentially). This avoids the concurrent-
+  # migration races you get when 3 nodes boot and migrate the shared DB at once.
+  # The lock is held for the duration of the migrate via psql's `\!` shell escape,
+  # since the lock lives only as long as the psql session.
+  - |
+    export PGPASSWORD='${db_password}'
+    until pg_isready -h ${db_host} -p 5432 -U ${db_user} -d ${db_name}; do
+      echo "waiting for postgres..."; sleep 2
+    done
+    psql -h ${db_host} -p 5432 -U ${db_user} -d ${db_name} -v ON_ERROR_STOP=1 <<'EOSQL'
+    SELECT pg_advisory_lock(8675309);
+    \! /usr/local/bin/semaphore migrate --config /etc/semaphore/config.json
+    SELECT pg_advisory_unlock(8675309);
+    EOSQL
+  # Schema is now current, so the 3 servers can start concurrently safely
+  # (their startup migration check just sees nothing pending).
+  - systemctl daemon-reload
+  - systemctl enable --now semaphore

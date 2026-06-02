@@ -1,0 +1,27 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - postgresql
+  - postgresql-contrib
+
+write_files:
+  - path: /root/init-db.sql
+    content: |
+      CREATE USER ${db_user} WITH PASSWORD '${db_password}';
+      CREATE DATABASE ${db_name} OWNER ${db_user};
+      GRANT ALL PRIVILEGES ON DATABASE ${db_name} TO ${db_user};
+
+runcmd:
+  - |
+    set -e
+    PRIV_IP=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
+    PGCONF=/etc/postgresql/16/main
+    echo "listen_addresses = 'localhost,$PRIV_IP'" > $PGCONF/conf.d/listen.conf
+    echo "max_connections = 200" >> $PGCONF/conf.d/listen.conf
+    sed -i "s/^#\?password_encryption.*/password_encryption = scram-sha-256/" $PGCONF/postgresql.conf
+    HBA=$(sudo -u postgres psql -tA -c "SHOW hba_file;")
+    echo "host ${db_name} ${db_user} ${vpc_ip_range} scram-sha-256" >> "$HBA"
+    systemctl enable postgresql
+    systemctl restart postgresql
+    sudo -u postgres psql < /root/init-db.sql
