@@ -4,6 +4,8 @@
 
 resource "google_compute_global_address" "lb" {
   name = "${var.prefix}-lb-ip"
+
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_health_check" "main" {
@@ -17,6 +19,8 @@ resource "google_compute_health_check" "main" {
     port         = 3000
     request_path = "/api/ping"
   }
+
+  depends_on = [google_project_service.compute]
 }
 
 # Unmanaged instance group holding the UI nodes, exposing :3000 as a named port.
@@ -73,6 +77,8 @@ resource "google_compute_url_map" "redirect" {
     https_redirect = true
     strip_query    = false
   }
+
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_target_http_proxy" "redirect" {

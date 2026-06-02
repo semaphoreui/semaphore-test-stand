@@ -11,6 +11,8 @@ resource "google_dns_managed_zone" "main" {
   name        = replace(local.dns_zone, ".", "-")
   dns_name    = "${local.dns_zone}."
   description = "Semaphore UI cluster delegated zone"
+
+  depends_on = [google_project_service.dns]
 }
 
 # Google-managed certificate. Google provisions and auto-renews it once the
@@ -25,6 +27,8 @@ resource "google_compute_managed_ssl_certificate" "main" {
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = [google_project_service.compute]
 }
 
 # Point the load balancer hostname at the load balancer IP.
