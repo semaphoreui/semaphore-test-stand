@@ -1,12 +1,21 @@
+variable "runners" {
+  type = map(object({
+    name               = string
+  }))
+}
+
 resource "semaphoreui_runner" "runner" {
-  name               = "local-dev-runner"
+  for_each           = var.runners
+  name               = "${var.prefix}-${each.value.name}"
   max_parallel_tasks = 1
   active             = true
   tags               = ["local", "dev"]
 }
 
 resource "digitalocean_droplet" "runner" {
-  name     = "local-dev-runner"
+  for_each = var.runners
+
+  name     = "${var.prefix}-${each.value.name}"
   image    = var.image
   size     = var.size
   region   = var.region
@@ -87,7 +96,7 @@ resource "digitalocean_droplet" "runner" {
         curl -XPOST \
           -H 'Authorization: Bearer ${var.api_token}' \
           -H 'content-type: application/json' \
-          ${local.api_base_url}/runners/${semaphoreui_runner.runner.id}/registration-token \
+          ${local.api_base_url}/runners/${semaphoreui_runner.runner[each.key].id}/registration-token \
           | jq -r .registration_token \
           | /usr/local/bin/semaphore runner register \
               --stdin-registration-token \

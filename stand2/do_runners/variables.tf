@@ -61,12 +61,6 @@ variable "semaphore_version" {
   default     = "2.18.6-beta1"
 }
 
-# variable "tls_skip_verify" {
-#   description = "Skip TLS verification for the API (local HTTPS with a self-signed cert)."
-#   type        = bool
-#   default     = true
-# }
-
 variable "api_token" {
   description = "Semaphore API token (or set SEMAPHOREUI_API_TOKEN)."
   type        = string
