@@ -93,7 +93,7 @@ resource "digitalocean_droplet" "runner" {
   provisioner "remote-exec" {
     inline = [
       <<-EOT
-        curl -XPOST \
+        curl -XPOST -s \
           -H 'Authorization: Bearer ${var.api_token}' \
           -H 'content-type: application/json' \
           ${local.api_base_url}/runners/${semaphoreui_runner.runner[each.key].id}/registration-token \
