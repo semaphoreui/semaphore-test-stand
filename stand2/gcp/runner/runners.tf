@@ -30,7 +30,8 @@ resource "google_compute_instance" "runner" {
 
   network_interface {
     subnetwork = data.google_compute_subnetwork.main.id
-    access_config {}
+    # No external IP — outbound via the server stack's Cloud NAT (org policy
+    # forbids external IPs).
   }
 
   metadata = {

@@ -23,12 +23,12 @@ output "load_balancer_ip" {
   value       = google_compute_global_address.lb.address
 }
 
+# Instances have no external IP (org policy); only private IPs are surfaced.
 output "cluster_servers" {
   description = "Semaphore UI cluster instances."
   value = {
     for i in google_compute_instance.cluster : i.name => {
       zone       = i.zone
-      public_ip  = i.network_interface[0].access_config[0].nat_ip
       private_ip = i.network_interface[0].network_ip
     }
   }
@@ -37,7 +37,6 @@ output "cluster_servers" {
 output "postgres_server" {
   description = "PostgreSQL instance."
   value = {
-    public_ip  = google_compute_instance.postgres.network_interface[0].access_config[0].nat_ip
     private_ip = google_compute_instance.postgres.network_interface[0].network_ip
   }
 }
@@ -45,7 +44,6 @@ output "postgres_server" {
 output "redis_server" {
   description = "Redis instance."
   value = {
-    public_ip  = google_compute_instance.redis.network_interface[0].access_config[0].nat_ip
     private_ip = google_compute_instance.redis.network_interface[0].network_ip
   }
 }

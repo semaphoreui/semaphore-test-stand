@@ -12,7 +12,7 @@ resource "google_compute_instance" "postgres" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.main.id
-    access_config {} # ephemeral public IPv4 (for apt / outbound)
+    # No external IP — outbound via Cloud NAT (org policy forbids external IPs).
   }
 
   metadata = {
@@ -40,7 +40,7 @@ resource "google_compute_instance" "redis" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.main.id
-    access_config {}
+    # No external IP — outbound via Cloud NAT (org policy forbids external IPs).
   }
 
   metadata = {

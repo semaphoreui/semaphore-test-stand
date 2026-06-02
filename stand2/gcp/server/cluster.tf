@@ -16,7 +16,7 @@ resource "google_compute_instance" "cluster" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.main.id
-    access_config {}
+    # No external IP — outbound via Cloud NAT (org policy forbids external IPs).
   }
 
   metadata = {
