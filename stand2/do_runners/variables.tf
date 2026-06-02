@@ -52,10 +52,10 @@ variable "vpc_ip_range" {
 ////////////
 
 
-variable "api_base_url" {
+variable "web_root" {
   description = "Semaphore API base URL (or set SEMAPHOREUI_API_BASE_URL)."
   type        = string
-  default     = "https://localhost:3000/api"
+  default     = "https://localhost:3000"
 }
 
 variable "tls_skip_verify" {

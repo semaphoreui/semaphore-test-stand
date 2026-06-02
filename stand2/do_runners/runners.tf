@@ -5,10 +5,8 @@ resource "semaphoreui_runner" "runner" {
   tags               = ["local", "dev"]
 }
 
-# 3 Semaphore runner droplets. They reach the cluster through the load balancer.
 resource "digitalocean_droplet" "runner" {
-  count    = 1
-  name     = "${var.prefix}-runner-${count.index + 1}"
+  name     = "local-dev-runner"
   image    = var.image
   size     = var.size
   region   = var.region
@@ -17,8 +15,86 @@ resource "digitalocean_droplet" "runner" {
   ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.runner.id, digitalocean_tag.runner.id]
 
-  user_data = templatefile("${path.module}/cloud-init/runner-systemd.yaml.tftpl", {
-    web_root           = "https://lb.stand2.semaphoreui.dev",
-    runner_registration_token = semaphoreui_runner.runner.registration_token,
-  })
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = self.ipv4_address
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /etc/semaphore",
+    ]
+  }
+
+  provisioner "file" {
+    content     = <<-EOT
+      {
+        "web_host": "${var.web_root}",
+        "runner": {
+          "web_host": "${var.web_root}",
+          "token_file": "/etc/semaphore/runner.token",
+          "private_key_file": "/etc/semaphore/runner.key",
+          "name": "Denis's project 39 runner",
+          "tags": [
+            "denis-project-39"
+          ]
+        }
+      }
+    EOT
+    destination = "/etc/semaphore/runner-config.json"
+  }
+
+  provisioner "file" {
+    content     = <<-EOT
+      [Unit]
+      Description=Semaphore Runner
+      Documentation=https://docs.semaphoreui.com
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      User=semaphore
+      Group=semaphore
+      ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+    EOT
+    destination = "/etc/systemd/system/semaphore-runner.service"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "curl -o semaphore_2.18.6-beta1_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.6-beta1/semaphore_2.18.6-beta1_linux_amd64.tar.gz",
+      "tar xf semaphore_2.18.6-beta1_linux_amd64.tar.gz",
+      "mv semaphore /usr/local/bin/",
+      
+      "id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore",
+      "chmod 0600 /etc/semaphore/runner-config.json",
+      "chmod 0644 /etc/systemd/system/semaphore-runner.service",
+      "chown -R semaphore:semaphore /etc/semaphore",
+      "systemctl daemon-reload",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      <<-EOT
+        curl -XPOST \
+          -H 'Authorization: Bearer ${var.api_token}' \
+          -H 'content-type: application/json' \
+          ${local.api_base_url}/runners/${semaphoreui_runner.runner.id}/registration-token \
+          | jq -r .registration_token \
+          | /usr/local/bin/semaphore runner register \
+              --stdin-registration-token \
+              --config /etc/semaphore/runner-config.json
+      EOT
+      ,
+      "systemctl enable --now semaphore-runner",
+    ]
+  }
 }
