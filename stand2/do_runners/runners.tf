@@ -69,8 +69,8 @@ resource "digitalocean_droplet" "runner" {
 
   provisioner "remote-exec" {
     inline = [
-      "curl -o semaphore_2.18.6-beta1_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v2.18.6-beta1/semaphore_2.18.6-beta1_linux_amd64.tar.gz",
-      "tar xf semaphore_2.18.6-beta1_linux_amd64.tar.gz",
+      "curl -o semaphore_${var.semaphore_version}_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v${var.semaphore_version}/semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
+      "tar xf semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
       "mv semaphore /usr/local/bin/",
       
       "id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore",

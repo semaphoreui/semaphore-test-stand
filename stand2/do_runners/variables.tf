@@ -49,23 +49,14 @@ variable "vpc_ip_range" {
   default     = "10.10.10.0/24"
 }
 
-////////////
-
-
 variable "web_root" {
   description = "Semaphore API base URL (or set SEMAPHOREUI_API_BASE_URL)."
   type        = string
   default     = "https://localhost:3000"
 }
 
-variable "tls_skip_verify" {
-  description = "Skip TLS verification for the API (local HTTPS with a self-signed cert)."
-  type        = bool
-  default     = true
-}
-
-variable "api_token" {
-  description = "Semaphore API token (or set SEMAPHOREUI_API_TOKEN)."
+variable "semaphore_version" {
+  description = "Semaphore runner version (or set SEMAPHORE_RUNNER_VERSION)."
   type        = string
-  sensitive   = true
+  default     = "2.18.6-beta1"
 }
