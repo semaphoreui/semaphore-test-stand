@@ -92,12 +92,6 @@ head -c32 /dev/urandom | base64
 After apply, open `http://<load_balancer_ip>` and log in with the
 `semaphore_admin_*` credentials.
 
-### Runner registration
-
-Set `runner_registration_token` to have runners self-register on first boot.
-Without it, runners install but wait — register them manually afterwards (see
-the [Semaphore runner docs](https://docs.semaphoreui.com/administration-guide/runners/)).
-
 ## Differences from the Hetzner stand
 
 - **Zones:** single region (DigitalOcean has no AZ concept) vs. 3 Hetzner

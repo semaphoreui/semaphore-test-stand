@@ -128,9 +128,8 @@ variable "semaphore_access_key_encryption" {
   sensitive   = true
 }
 
-variable "runner_registration_token" {
-  description = "Token runners use to register with the Semaphore server. Leave empty to configure runners manually after first boot."
+variable "semaphore_version" {
+  description = "Semaphore runner version (or set SEMAPHORE_RUNNER_VERSION)."
   type        = string
-  default     = ""
-  sensitive   = true
+  default     = "2.18.6-beta1"
 }

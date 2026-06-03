@@ -15,9 +15,6 @@ redis_password                  = "change-me-redis"
 semaphore_admin_password        = "change-me-admin"
 semaphore_access_key_encryption = "generate-with: head -c32 /dev/urandom | base64"
 
-# Optional: register runners automatically on first boot.
-# runner_registration_token = "..."
-
 # Optional overrides
 # region = "fra1"   # nyc1/nyc3/sfo3/ams3/lon1/sgp1/tor1/blr1/syd1
 # size   = "s-1vcpu-2gb"

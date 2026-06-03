@@ -59,12 +59,6 @@ head -c32 /dev/urandom | base64
 After apply, open the load balancer address from the Terraform outputs and log
 in with the `semaphore_admin_*` credentials.
 
-### Runner registration
-
-Set `runner_registration_token` to have runners self-register on first boot.
-Without it, runners install but wait — register them manually afterwards (see
-the [Semaphore runner docs](https://docs.semaphoreui.com/administration-guide/runners/)).
-
 ## Differences between variants
 
 - **DigitalOcean (`do/`)** — single region (DigitalOcean has no availability

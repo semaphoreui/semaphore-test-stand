@@ -24,7 +24,6 @@ semaphore_cookie_encryption     = "generate-with: head -c32 /dev/urandom | base6
 semaphore_access_key_encryption = "generate-with: head -c32 /dev/urandom | base64"
 
 # Optional: register runners automatically on first boot.
-# runner_registration_token = "..."
 
 # Optional overrides
 # region       = "europe-west3"        # us-central1/europe-west1/asia-east1/...
