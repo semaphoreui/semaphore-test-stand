@@ -78,6 +78,14 @@ runcmd:
     \! /usr/local/bin/semaphore migrate --config /etc/semaphore/config.json
     SELECT pg_advisory_unlock(8675309);
     EOSQL
+  # Bootstrap the admin user exactly once, on the first node only (${bootstrap}
+  # is true just for cluster index 0). Other nodes skip this so the user isn't
+  # created repeatedly. The API token is NOT minted here — Terraform creates it
+  # over SSH afterwards (see admin-token.tf) and keeps it off the server's disk.
+  - |
+    if [ "${bootstrap}" = "true" ]; then
+      semaphore user create --config /etc/semaphore/config.json --login "${admin_user}" --name "${admin_user}" --email "${admin_email}" --password "${admin_password}" --admin
+    fi
   # Schema is now current, so the 3 servers can start concurrently safely
   # (their startup migration check just sees nothing pending).
   - systemctl daemon-reload
