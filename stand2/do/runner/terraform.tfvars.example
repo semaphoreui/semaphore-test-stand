@@ -1,0 +1,4 @@
+# Stack-specific only. Shared values come from ../../shared via -var-file
+# (common.tfvars + do.tfvars) — see shared/README.md.
+prefix   = "stand2"
+web_root = "https://lb.stand2.semaphoreui.dev"

@@ -1,0 +1,7 @@
+prefix = "stand2"
+web_root  = "https://lb.stand2.domain.com"
+runners = {
+  "ci-eu"  = { name = "runner1", region = "europe-west3", zone = "a" }
+  "ci-us"  = { name = "runner2", region = "us-central1", zone = "a" }
+  "deploy" = { name = "runner3", region = "asia-east1", zone = "a" }
+}
