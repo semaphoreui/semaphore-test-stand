@@ -44,6 +44,7 @@ resource "google_compute_instance" "cluster" {
       admin_password        = var.semaphore_admin_password
       admin_email           = var.semaphore_admin_email
       semaphore_version     = var.semaphore_version
+      node_index            = count.index + 1
     })
   }
 

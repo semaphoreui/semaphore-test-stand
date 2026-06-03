@@ -12,26 +12,25 @@ write_files:
   - path: /etc/semaphore/config.json
     permissions: "0600"
     content: |
-      {
-        "postgres": {
-          "host": "${db_host}:5432",
-          "user": "${db_user}",
-          "pass": "${db_password}",
-          "name": "${db_name}"
-        },
-        "dialect": "postgres",
-        "redis": {
-          "host": "${redis_host}:6379",
-          "password": "${redis_password}",
-          "db": 0
-        },
-        "port": ":3000",
-        "web_host": "${web_root}",
-        "cookie_hash": "${cookie_hash}",
-        "cookie_encryption": "${cookie_encryption}",
-        "access_key_encryption": "${access_key_encryption}",
-        "email_alert": false
-      }
+      postgres:
+        host: "${db_host}:5432"
+        user: "${db_user}"
+        pass: "${db_password}"
+        name: "${db_name}"
+      dialect: postgres
+      port: ":3000"
+      web_host: "${web_root}"
+      cookie_hash: "${cookie_hash}"
+      cookie_encryption: "${cookie_encryption}"
+      access_key_encryption: "${access_key_encryption}"
+      email_alert: false
+      ha:
+        enabled: false
+        node_id: node${node_index}
+        redis:
+          addr: "${redis_host}:6379"
+          pass: "${redis_password}"
+
 
   - path: /etc/systemd/system/semaphore.service
     permissions: "0644"

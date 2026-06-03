@@ -2,7 +2,7 @@
 # availability zones, so they share one region/VPC. Private IPs of Postgres
 # and Redis are resolved from their droplet resources (created first).
 resource "digitalocean_droplet" "cluster" {
-  count    = 1
+  count    = 2
   name     = "${var.prefix}-ui-${count.index + 1}"
   image    = var.image
   size     = var.size
@@ -31,5 +31,6 @@ resource "digitalocean_droplet" "cluster" {
     admin_password        = var.semaphore_admin_password
     admin_email           = var.semaphore_admin_email
     semaphore_version     = var.semaphore_version
+    node_index            = count.index + 1
   })
 }
