@@ -45,7 +45,7 @@ write_files:
       Type=simple
       User=semaphore
       Group=semaphore
-      ExecStart=/usr/local/bin/semaphore server --config /etc/semaphore/config.json
+      ExecStart=/usr/local/bin/semaphore server --config /etc/semaphore/config.yml
       Restart=on-failure
       RestartSec=5
 
