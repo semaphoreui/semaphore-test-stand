@@ -24,6 +24,8 @@ resource "digitalocean_droplet" "runner" {
   ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.runner.id]
 
+  user_data = templatefile("${path.module}/../../shared/cloud-init/runner-systemd.yaml.tftpl", {})
+
   connection {
     type = "ssh"
     user = "root"
