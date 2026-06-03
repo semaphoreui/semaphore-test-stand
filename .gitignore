@@ -9,6 +9,6 @@ terraform.tfvars
 admin.token
 # Shared tfvars hold secrets; commit only the .example versions.
 **/shared/*.tfvars
-**/shared/.env
-**/shared/.env.*
-!**/shared/*.example
+.env
+.env.*
+!*.example
