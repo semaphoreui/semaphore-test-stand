@@ -51,7 +51,7 @@ resource "terraform_data" "fetch_admin_token" {
       mint_token() {
         gcloud compute ssh "$INSTANCE" --zone "$ZONE" --project "$PROJECT" \
           --tunnel-through-iap --quiet \
-          --command "sudo /usr/local/bin/semaphore user token create --config /etc/semaphore/config.json --login '$ADMIN_USER'"
+          --command "sudo /usr/local/bin/semaphore user token create --config /etc/semaphore/config.yml --login '$ADMIN_USER'"
       }
       TOKEN=$(retry mint_token)
       if [ -z "$TOKEN" ]; then

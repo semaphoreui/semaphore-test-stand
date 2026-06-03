@@ -69,7 +69,7 @@ passed through the `user-data` instance metadata key:
   `scram-sha-256` access from the subnet.
 - **redis** — installs Redis, binds to its private IP, sets a password and AOF.
 - **semaphore** — installs the Semaphore binary, writes
-  `/etc/semaphore/config.json` pointing at Postgres + Redis (private IPs injected
+  `/etc/semaphore/config.yml` pointing at Postgres + Redis (private IPs injected
   by Terraform), serializes DB migrations with a Postgres advisory lock, then
   starts the Semaphore systemd service. The same `access_key_encryption` key is
   shared across all cluster nodes so they form one cluster.

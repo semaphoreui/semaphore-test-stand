@@ -66,7 +66,7 @@ Each role boots with a dedicated cloud-init template in [cloud-init/](cloud-init
   DigitalOcean metadata service, binds to it, creates the Semaphore
   database/user, and allows `scram-sha-256` access from the VPC.
 - **redis** — installs Redis, binds to its private IP, sets a password and AOF.
-- **semaphore** — installs Docker, writes `/etc/semaphore/config.json` pointing
+- **semaphore** — installs Docker, writes `/etc/semaphore/config.yml` pointing
   at Postgres + Redis (private IPs injected by Terraform), runs DB migrations,
   then starts the Semaphore server container. The same `access_key_encryption`
   key is shared across all 3 nodes so they form one cluster.
