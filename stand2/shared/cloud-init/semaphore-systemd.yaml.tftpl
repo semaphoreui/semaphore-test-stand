@@ -25,7 +25,7 @@ write_files:
       access_key_encryption: "${access_key_encryption}"
       email_alert: false
       ha:
-        enabled: false
+        enabled: true
         node_id: node${node_index}
         redis:
           addr: "${redis_host}:6379"
