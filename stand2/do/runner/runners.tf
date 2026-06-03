@@ -37,42 +37,16 @@ resource "digitalocean_droplet" "runner" {
   }
 
   provisioner "file" {
-    content     = <<-EOT
-      {
-        "web_host": "${var.web_root}",
-        "runner": {
-          "web_host": "${var.web_root}",
-          "token_file": "/etc/semaphore/runner.token",
-          "private_key_file": "/etc/semaphore/runner.key",
-          "name": "Denis's project 39 runner",
-          "tags": [
-            "denis-project-39"
-          ]
-        }
-      }
-    EOT
+    content = templatefile("${path.module}/../../shared/runner/runner-config.json.tftpl", {
+      web_root    = var.web_root
+      runner_name = "${var.prefix}-${each.value.name}"
+      tags        = ["local", "dev"]
+    })
     destination = "/etc/semaphore/runner-config.json"
   }
 
   provisioner "file" {
-    content     = <<-EOT
-      [Unit]
-      Description=Semaphore Runner
-      Documentation=https://docs.semaphoreui.com
-      After=network-online.target
-      Wants=network-online.target
-
-      [Service]
-      Type=simple
-      User=semaphore
-      Group=semaphore
-      ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
-      Restart=on-failure
-      RestartSec=5
-
-      [Install]
-      WantedBy=multi-user.target
-    EOT
+    content     = file("${path.module}/../../shared/runner/semaphore-runner.service")
     destination = "/etc/systemd/system/semaphore-runner.service"
   }
 

@@ -2,40 +2,16 @@ set -e
 
 sudo mkdir -p /etc/semaphore
 
+# runner-config.json and the systemd unit are rendered from the shared templates
+# by Terraform and injected here (see runners.tf), so they stay in sync with the
+# DigitalOcean runner stack.
 cat > /tmp/runner-config.json <<'JSON'
-{
-  "web_host": "${web_root}",
-  "runner": {
-    "web_host": "${web_root}",
-    "token_file": "/etc/semaphore/runner.token",
-    "private_key_file": "/etc/semaphore/runner.key",
-    "name": "${runner_name}",
-    "tags": [
-      "local",
-      "dev"
-    ]
-  }
-}
+${runner_config}
 JSON
 sudo mv /tmp/runner-config.json /etc/semaphore/runner-config.json
 
 cat > /tmp/semaphore-runner.service <<'UNIT'
-[Unit]
-Description=Semaphore Runner
-Documentation=https://docs.semaphoreui.com
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=semaphore
-Group=semaphore
-ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
+${runner_service}
 UNIT
 sudo mv /tmp/semaphore-runner.service /etc/systemd/system/semaphore-runner.service
 

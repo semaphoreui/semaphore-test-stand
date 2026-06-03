@@ -12,7 +12,7 @@ resource "digitalocean_droplet" "cluster" {
   ssh_keys = [digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.ui.id]
 
-  user_data = templatefile("${path.module}/cloud-init/semaphore-systemd.yaml.tftpl", {
+  user_data = templatefile("${path.module}/../../shared/cloud-init/semaphore-systemd.yaml.tftpl", {
     # Only the first node bootstraps the admin user + API token, so they are
     # created exactly once across the cluster (the shared DB is migrated under
     # an advisory lock separately).
@@ -30,5 +30,6 @@ resource "digitalocean_droplet" "cluster" {
     admin_user            = var.semaphore_admin_user
     admin_password        = var.semaphore_admin_password
     admin_email           = var.semaphore_admin_email
+    semaphore_version     = var.semaphore_version
   })
 }

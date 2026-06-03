@@ -1,0 +1,10 @@
+{
+  "web_host": "${web_root}",
+  "runner": {
+    "web_host": "${web_root}",
+    "token_file": "/etc/semaphore/runner.token",
+    "private_key_file": "/etc/semaphore/runner.key",
+    "name": "${runner_name}",
+    "tags": ${jsonencode(tags)}
+  }
+}

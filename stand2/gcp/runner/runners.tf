@@ -22,9 +22,14 @@ resource "semaphoreui_runner" "runner" {
 locals {
   provision_scripts = {
     for k, v in var.runners : k => templatefile("${path.module}/provision.sh.tftpl", {
-      web_root          = var.web_root
       semaphore_version = var.semaphore_version
-      runner_name       = "${var.prefix}-${v.name}"
+      # runner-config.json and the systemd unit come from the shared templates.
+      runner_config = templatefile("${path.module}/../../shared/runner/runner-config.json.tftpl", {
+        web_root    = var.web_root
+        runner_name = "${var.prefix}-${v.name}"
+        tags        = ["local", "dev"]
+      })
+      runner_service = file("${path.module}/../../shared/runner/semaphore-runner.service")
     })
   }
 }

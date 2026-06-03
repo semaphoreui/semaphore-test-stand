@@ -25,7 +25,11 @@ resource "google_compute_instance" "cluster" {
 
   metadata = {
     ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
-    user-data = templatefile("${path.module}/cloud-init/semaphore-systemd.yaml.tftpl", {
+    user-data = templatefile("${path.module}/../../shared/cloud-init/semaphore-systemd.yaml.tftpl", {
+      # GCP creates the admin user from the SEMAPHORE_ADMIN_* service env, so it
+      # does not need the cloud-init bootstrap step (that is a DO-only flow for
+      # minting an API token from the admin user).
+      bootstrap             = false
       db_host               = google_compute_instance.postgres.network_interface[0].network_ip
       db_name               = var.db_name
       db_user               = var.db_user

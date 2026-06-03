@@ -1,4 +1,7 @@
 #cloud-config
+# Shared across the do/ and gcp/ server stacks. The admin-user bootstrap is
+# gated by ${bootstrap} so it runs on exactly one node (and only where a stack
+# needs it — e.g. DO, which mints an API token from that user afterwards).
 package_update: true
 package_upgrade: true
 packages:

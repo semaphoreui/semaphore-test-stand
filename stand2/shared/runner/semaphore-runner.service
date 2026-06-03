@@ -1,0 +1,16 @@
+[Unit]
+Description=Semaphore Runner
+Documentation=https://docs.semaphoreui.com
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=semaphore
+Group=semaphore
+ExecStart=/usr/local/bin/semaphore runner start --config /etc/semaphore/runner-config.json
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

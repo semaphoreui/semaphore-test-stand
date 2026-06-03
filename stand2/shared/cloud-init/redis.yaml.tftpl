@@ -1,4 +1,6 @@
 #cloud-config
+# Shared across the do/ and gcp/ server stacks. ${private_ip_cmd} injects the
+# provider-specific private-IP metadata lookup (the only difference between clouds).
 package_update: true
 package_upgrade: true
 packages:
@@ -7,7 +9,7 @@ packages:
 runcmd:
   - |
     set -e
-    PRIV_IP=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
+    PRIV_IP=$(${private_ip_cmd})
     mkdir -p /etc/redis/redis.conf.d
     cat > /etc/redis/redis.conf.d/semaphore.conf <<EOF
     bind 127.0.0.1 $PRIV_IP
