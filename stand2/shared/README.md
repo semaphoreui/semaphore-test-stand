@@ -21,7 +21,7 @@ and fill them in.
 
 cd stand2/do/runner
 
-export $(cat ../../.env ../../.env.do | xargs)
+set -a; source ../../shared/.env; source ../../shared/.env.do; set +a
 
 terraform apply
 ```
