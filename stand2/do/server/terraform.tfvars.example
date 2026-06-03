@@ -1,3 +1,0 @@
-# Stack-specific only. Shared values come from ../../shared via -var-file
-# (common.tfvars + server.tfvars + do.tfvars) — see shared/README.md.
-prefix = "stand2"
