@@ -61,9 +61,3 @@ variable "semaphore_version" {
   type        = string
   default     = "2.18.6-beta5"
 }
-
-variable "api_token" {
-  description = "Semaphore API token (or set SEMAPHOREUI_API_TOKEN)."
-  type        = string
-  sensitive   = true
-}

@@ -18,19 +18,7 @@ and fill them in.
 ## Apply commands (run from inside each stack dir)
 
 ```sh
-# do/server
-terraform apply -var-file=../../shared/common.tfvars \
-                -var-file=../../shared/do.tfvars
+source .env .env.do
 
-# gcp/server
-terraform apply -var-file=../../shared/common.tfvars \
-                -var-file=../../shared/gcp.tfvars
-
-# do/runner
-terraform apply -var-file=../../shared/common.tfvars \
-                -var-file=../../shared/do.tfvars
-
-# gcp/runner
-terraform apply -var-file=../../shared/common.tfvars \
-                -var-file=../../shared/gcp.tfvars
+terraform apply
 ```

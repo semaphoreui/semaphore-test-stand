@@ -2,8 +2,8 @@
 # Shared across the do/ and gcp/ server stacks. The admin-user bootstrap is
 # gated by ${bootstrap} so it runs on exactly one node (and only where a stack
 # needs it — e.g. DO, which mints an API token from that user afterwards).
-package_update: true
-package_upgrade: true
+package_update: false
+package_upgrade: false
 packages:
   # psql is used to serialize schema migrations across nodes via an advisory lock.
   - postgresql-client
@@ -46,10 +46,6 @@ write_files:
       Type=simple
       User=semaphore
       Group=semaphore
-      Environment=SEMAPHORE_ADMIN=${admin_user}
-      Environment=SEMAPHORE_ADMIN_PASSWORD=${admin_password}
-      Environment=SEMAPHORE_ADMIN_NAME=Admin
-      Environment=SEMAPHORE_ADMIN_EMAIL=${admin_email}
       ExecStart=/usr/local/bin/semaphore server --config /etc/semaphore/config.json
       Restart=on-failure
       RestartSec=5
@@ -87,7 +83,7 @@ runcmd:
   # over SSH afterwards (see admin-token.tf) and keeps it off the server's disk.
   - |
     if [ "${bootstrap}" = "true" ]; then
-      semaphore user create --config /etc/semaphore/config.json --login "${admin_user}" --name "${admin_user}" --email "${admin_email}" --password "${admin_password}" --admin
+      semaphore user add --config /etc/semaphore/config.json --login "${admin_user}" --name "${admin_user}" --email "${admin_email}" --password "${admin_password}" --admin
     fi
   # Schema is now current, so the 3 servers can start concurrently safely
   # (their startup migration check just sees nothing pending).

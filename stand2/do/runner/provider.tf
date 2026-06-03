@@ -4,9 +4,7 @@ provider "digitalocean" {
 
 locals {
   api_base_url = "${var.web_root}/api"
-  # Read the Semaphore API token from the file the server stack writes. trimspace
-  # drops the trailing newline; sensitive() keeps it out of plan/CLI output.
-  api_token = sensitive(trimspace(file("${path.module}/${var.api_token_file}")))
+  api_token = sensitive(trimspace(file("${path.module}/admin.token")))
 }
 
 provider "semaphoreui" {

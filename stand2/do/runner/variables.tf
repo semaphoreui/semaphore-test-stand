@@ -48,9 +48,3 @@ variable "semaphore_version" {
   type        = string
   default     = "2.18.6-beta1"
 }
-
-variable "api_token_file" {
-  description = "Path (relative to this module) to the file holding the Semaphore API token, produced by the server stack."
-  type        = string
-  default     = "../server/admin.token"
-}

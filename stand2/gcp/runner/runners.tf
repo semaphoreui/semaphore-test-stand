@@ -104,7 +104,7 @@ resource "terraform_data" "provision" {
       PROVISION_SCRIPT = local.provision_scripts[each.key]
       # API token and registration inputs stay on the Terraform host — never
       # written into the script that is copied to the instance.
-      API_TOKEN    = var.api_token
+      API_TOKEN    = local.api_token
       API_BASE_URL = local.api_base_url
       RUNNER_ID    = semaphoreui_runner.runner[each.key].id
     }
