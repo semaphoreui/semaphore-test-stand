@@ -18,7 +18,10 @@ and fill them in.
 ## Apply commands (run from inside each stack dir)
 
 ```sh
-source .env .env.do
+
+cd stand2/do/runner
+
+export $(cat ../../.env ../../.env.do | xargs)
 
 terraform apply
 ```
