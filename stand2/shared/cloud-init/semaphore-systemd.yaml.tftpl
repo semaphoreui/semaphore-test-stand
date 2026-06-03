@@ -1,7 +1,7 @@
 #cloud-config
 # Shared across the do/ and gcp/ server stacks. The admin-user bootstrap is
 # gated by ${bootstrap} so it runs on exactly one node (and only where a stack
-# needs it — e.g. DO, which mints an API token from that user afterwards).
+# needs it - e.g. DO, which mints an API token from that user afterwards).
 package_update: false
 package_upgrade: false
 packages:
@@ -78,7 +78,7 @@ runcmd:
     EOSQL
   # Bootstrap the admin user exactly once, on the first node only (${bootstrap}
   # is true just for cluster index 0). Other nodes skip this so the user isn't
-  # created repeatedly. The API token is NOT minted here — Terraform creates it
+  # created repeatedly. The API token is NOT minted here - Terraform creates it
   # over SSH afterwards (see admin-token.tf) and keeps it off the server's disk.
   - |
     if [ "${bootstrap}" = "true" ]; then
