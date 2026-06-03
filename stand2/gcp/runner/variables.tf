@@ -4,7 +4,7 @@ variable "gcp_project" {
 }
 
 variable "prefix" {
-  description = "Name prefix applied to every resource. Must match the server stack's prefix (used to look up its VPC/subnet)."
+  description = "Name prefix applied to every resource."
   type        = string
   default     = "semaphore"
 }
@@ -33,15 +33,21 @@ variable "image" {
 }
 
 variable "region" {
-  description = "Google Cloud region (must match the server stack's region)."
+  description = "Default region for the google provider. Per-runner placement is set in var.runners; this only seeds provider-level defaults."
   type        = string
   default     = "europe-west3"
 }
 
 variable "zone" {
-  description = "Compute Engine zone for runner instances (must be inside var.region)."
+  description = "Default zone for the google provider. Per-runner placement is set in var.runners; this only seeds provider-level defaults."
   type        = string
-  default     = "europe-west3-a"
+  default     = "a"
+}
+
+variable "runner_cidr" {
+  description = "Base CIDR for the runner VPC. A non-overlapping /24 is carved from it per region (so this should be at most a /16 to leave room)."
+  type        = string
+  default     = "10.20.0.0/16"
 }
 
 variable "web_root" {

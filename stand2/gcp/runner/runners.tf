@@ -1,6 +1,9 @@
 variable "runners" {
+  description = "Runners to create, keyed by an arbitrary id. Each runs in its own region/zone; one subnet + Cloud NAT is provisioned per distinct region."
   type = map(object({
-    name = string
+    name   = string
+    region = string
+    zone   = string
   }))
 }
 
@@ -44,7 +47,7 @@ resource "google_compute_instance" "runner" {
 
   name         = "${var.prefix}-${each.value.name}"
   machine_type = var.machine_type
-  zone         = var.zone
+  zone         = "${each.value.region}-${each.value.zone}"
   tags         = [local.tag_runner]
 
   boot_disk {
@@ -54,8 +57,8 @@ resource "google_compute_instance" "runner" {
   }
 
   network_interface {
-    subnetwork = data.google_compute_subnetwork.main.id
-    # No external IP — outbound via the server stack's Cloud NAT (org policy
+    subnetwork = google_compute_subnetwork.runners[each.value.region].id
+    # No external IP — outbound via this VPC's regional Cloud NAT (org policy
     # forbids external IPs).
   }
 
@@ -89,7 +92,7 @@ resource "terraform_data" "provision" {
 
     environment = {
       PROJECT  = var.gcp_project
-      ZONE     = var.zone
+      ZONE     = "${each.value.region}-${each.value.zone}"
       INSTANCE = google_compute_instance.runner[each.key].name
       # The provisioning script carries NO secrets, so it is safe to land on the
       # instance disk. Passed as a single env var to avoid heredoc pitfalls.
