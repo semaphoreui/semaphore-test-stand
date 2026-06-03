@@ -24,6 +24,7 @@ write_files:
       cookie_encryption: "${cookie_encryption}"
       access_key_encryption: "${access_key_encryption}"
       email_alert: false
+      max_parallel_tasks: 9999
       ha:
         enabled: true
         node_id: node${node_index}

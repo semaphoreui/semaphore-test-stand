@@ -56,7 +56,7 @@ resource "digitalocean_droplet" "runner" {
       "tar xf semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
       "mv semaphore /usr/local/bin/",
 
-      "id -u semaphore >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin semaphore",
+      "id -u semaphore >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin semaphore",
       "chmod 0600 /etc/semaphore/runner-config.json",
       "chmod 0644 /etc/systemd/system/semaphore-runner.service",
       "chown -R semaphore:semaphore /etc/semaphore",

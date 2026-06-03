@@ -1,0 +1,16 @@
+#cloud-config
+# Shared across the do/ and gcp/ server stacks. The admin-user bootstrap is
+# gated by ${bootstrap} so it runs on exactly one node (and only where a stack
+# needs it - e.g. DO, which mints an API token from that user afterwards).
+package_update: true
+package_upgrade: false
+packages:
+  # psql is used to serialize schema migrations across nodes via an advisory lock.
+  - postgresql-client
+  - jq
+  - curl
+  - software-properties-common
+
+runcmd:
+  - add-apt-repository -y --update ppa:ansible/ansible
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y ansible
