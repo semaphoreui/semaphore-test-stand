@@ -4,13 +4,6 @@ variable "do_token" {
   sensitive   = true
 }
 
-variable "prefix" {
-  description = "Name prefix applied to every resource."
-  type        = string
-  default     = "semaphore"
-  
-}
-
 variable "size" {
   description = "Droplet size slug used for all 'small' droplets."
   type        = string
@@ -44,22 +37,10 @@ variable "cloudflare_api_token" {
   sensitive   = true
 }
 
-variable "lb_subdomain" {
-  description = "Label for the load balancer hostname within the delegated zone, i.e. <lb_subdomain>.<prefix>.<parent_domain>."
-  type        = string
-  default     = "lb"
-}
-
 variable "project_environment" {
   description = "DigitalOcean project environment (Development, Staging, or Production)."
   type        = string
   default     = "Development"
-}
-
-variable "vpc_ip_range" {
-  description = "Private VPC CIDR. Postgres allows connections from this range."
-  type        = string
-  default     = "10.10.10.0/24"
 }
 
 # --- Application secrets / config -------------------------------------------

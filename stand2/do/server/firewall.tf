@@ -1,7 +1,7 @@
 # DigitalOcean Cloud Firewalls filter both public and private (VPC) traffic,
 # so internal Postgres/Redis access is opened explicitly to the VPC range.
 resource "digitalocean_firewall" "main" {
-  name = "${var.prefix}-fw"
+  name = "${local.prefix}-fw"
   tags = [digitalocean_tag.base.id]
 
   # --- Inbound ---
@@ -22,14 +22,14 @@ resource "digitalocean_firewall" "main" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "5432"
-    source_addresses = [var.vpc_ip_range]
+    source_addresses = [local.config.vpc_ip_range]
   }
 
   # Redis — VPC only.
   inbound_rule {
     protocol         = "tcp"
     port_range       = "6379"
-    source_addresses = [var.vpc_ip_range]
+    source_addresses = [local.config.vpc_ip_range]
   }
 
   inbound_rule {

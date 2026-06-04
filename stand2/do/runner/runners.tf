@@ -1,21 +1,15 @@
-variable "runners" {
-  type = map(object({
-    name = string
-  }))
-}
-
 resource "semaphoreui_runner" "runner" {
-  for_each           = var.runners
+  for_each           = local.config.runners
   name               = "${var.prefix}-${each.value.name}"
-  max_parallel_tasks = 100
+  max_parallel_tasks = 500
   active             = true
   tags               = ["local", "dev"]
 }
 
 resource "digitalocean_droplet" "runner" {
-  for_each = var.runners
+  for_each = local.config.runners
 
-  name     = "${var.prefix}-${each.value.name}"
+  name     = "${var.prefix}-runner-${semaphoreui_runner.runner[each.key].id}"
   image    = var.image
   size     = var.size
   region   = var.region

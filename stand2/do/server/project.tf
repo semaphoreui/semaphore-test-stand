@@ -2,7 +2,7 @@
 # support project assignment (droplets, load balancers) are listed here — VPCs,
 # firewalls, tags and SSH keys are account/region-scoped and cannot be bound.
 resource "digitalocean_project" "main" {
-  name        = var.prefix
+  name        = local.prefix
   description = "Semaphore UI cluster"
   purpose     = "Web Application"
   environment = var.project_environment

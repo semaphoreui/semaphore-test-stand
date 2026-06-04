@@ -1,10 +1,10 @@
 resource "digitalocean_ssh_key" "default" {
-  name       = "${var.prefix}-key"
+  name       = "${local.prefix}-key"
   public_key = local.ssh_public_key
 }
 
 resource "digitalocean_vpc" "main" {
-  name     = "${var.prefix}-vpc"
+  name     = "${local.prefix}-vpc"
   region   = var.region
-  ip_range = var.vpc_ip_range
+  ip_range = local.config.vpc_ip_range
 }

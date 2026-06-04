@@ -5,7 +5,7 @@ locals {
 }
 
 resource "digitalocean_droplet" "postgres" {
-  name     = "${var.prefix}-postgres"
+  name     = "${local.prefix}-postgres"
   image    = var.image
   size     = var.size
   region   = var.region
@@ -18,13 +18,13 @@ resource "digitalocean_droplet" "postgres" {
     db_name        = var.db_name
     db_user        = var.db_user
     db_password    = var.db_password
-    vpc_ip_range   = var.vpc_ip_range
+    vpc_ip_range   = local.config.vpc_ip_range
     private_ip_cmd = local.metadata_private_ip_cmd
   })
 }
 
 resource "digitalocean_droplet" "redis" {
-  name     = "${var.prefix}-redis"
+  name     = "${local.prefix}-redis"
   image    = var.image
   size     = var.size
   region   = var.region

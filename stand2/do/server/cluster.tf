@@ -3,7 +3,7 @@
 # and Redis are resolved from their droplet resources (created first).
 resource "digitalocean_droplet" "cluster" {
   count    = 1
-  name     = "${var.prefix}-ui-${count.index + 1}"
+  name     = "${local.prefix}-ui-${count.index + 1}"
   image    = var.image
   size     = var.size
   region   = var.region
@@ -23,7 +23,7 @@ resource "digitalocean_droplet" "cluster" {
     db_password           = var.db_password
     redis_host            = digitalocean_droplet.redis.ipv4_address_private
     redis_password        = var.redis_password
-    web_root              = "https://${local.lb_fqdn}"
+    web_root              = local.web_root
     cookie_hash           = var.semaphore_cookie_hash
     cookie_encryption     = var.semaphore_cookie_encryption
     access_key_encryption = var.semaphore_access_key_encryption

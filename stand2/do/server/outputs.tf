@@ -5,7 +5,7 @@ output "project_id" {
 
 output "semaphore_url" {
   description = "HTTPS entry point for the Semaphore UI."
-  value       = "https://${local.lb_fqdn}"
+  value       = local.web_root
 }
 
 output "delegated_zone" {

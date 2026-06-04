@@ -23,7 +23,7 @@ egress.
 
 The load balancer terminates TLS with a DigitalOcean-managed **Let's Encrypt**
 certificate and redirects HTTP→HTTPS. The hostnames are derived from
-`var.prefix` + `var.parent_domain`:
+`local.prefix` + `var.parent_domain`:
 
 - Delegated DO zone: `<prefix>.<parent_domain>` (e.g. `stand2.semaphoreui.dev`)
 - LB hostname / cert: `<lb_subdomain>.<prefix>.<parent_domain>`

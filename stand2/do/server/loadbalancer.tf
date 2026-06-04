@@ -1,5 +1,5 @@
 resource "digitalocean_loadbalancer" "main" {
-  name     = "${var.prefix}-lb"
+  name     = "${local.prefix}-lb"
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
