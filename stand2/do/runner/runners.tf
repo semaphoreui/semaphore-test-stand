@@ -7,7 +7,7 @@ variable "runners" {
 resource "semaphoreui_runner" "runner" {
   for_each           = var.runners
   name               = "${var.prefix}-${each.value.name}"
-  max_parallel_tasks = 1
+  max_parallel_tasks = 100
   active             = true
   tags               = ["local", "dev"]
 }

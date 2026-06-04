@@ -15,7 +15,7 @@ resource "terraform_data" "fetch_admin_token" {
     environment = {
       IP         = digitalocean_droplet.cluster[0].ipv4_address
       ADMIN_USER = var.semaphore_admin_user
-      DEST       = "${path.module}/admin.token"
+      DEST       = "${local.api_token_path}"
     }
 
     command = <<-EOT

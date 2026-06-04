@@ -22,7 +22,7 @@ resource "google_compute_instance" "postgres" {
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    ssh-keys = "${var.ssh_user}:${local.ssh_public_key}"
     user-data = templatefile("${path.module}/../../shared/cloud-init/postgres.yaml.tftpl", {
       db_name        = var.db_name
       db_user        = var.db_user
@@ -51,7 +51,7 @@ resource "google_compute_instance" "redis" {
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    ssh-keys = "${var.ssh_user}:${local.ssh_public_key}"
     user-data = templatefile("${path.module}/../../shared/cloud-init/redis.yaml.tftpl", {
       redis_password = var.redis_password
       private_ip_cmd = local.metadata_private_ip_cmd

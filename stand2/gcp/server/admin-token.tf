@@ -18,7 +18,7 @@ resource "terraform_data" "fetch_admin_token" {
       ZONE       = var.zone
       INSTANCE   = google_compute_instance.cluster[0].name
       ADMIN_USER = var.semaphore_admin_user
-      DEST       = "${path.module}/admin.token"
+      DEST       = "${local.api_token_path}"
     }
 
     command = <<-EOT

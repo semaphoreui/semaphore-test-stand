@@ -9,7 +9,7 @@ runcmd:
     chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
     echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
     apt update
-    apt install redis
+    DEBIAN_FRONTEND=noninteractive apt install redis -y
     set -e
     PRIV_IP=$(${private_ip_cmd})
     mkdir -p /etc/redis/redis.conf.d
@@ -17,7 +17,6 @@ runcmd:
     bind 127.0.0.1 $PRIV_IP
     protected-mode yes
     requirepass ${redis_password}
-    appendonly yes
     EOF
     grep -q "redis.conf.d" /etc/redis/redis.conf || echo "include /etc/redis/redis.conf.d/semaphore.conf" >> /etc/redis/redis.conf
     systemctl enable redis-server

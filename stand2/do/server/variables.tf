@@ -8,11 +8,7 @@ variable "prefix" {
   description = "Name prefix applied to every resource."
   type        = string
   default     = "semaphore"
-}
-
-variable "ssh_public_key" {
-  description = "SSH public key contents granted access to every droplet."
-  type        = string
+  
 }
 
 variable "size" {

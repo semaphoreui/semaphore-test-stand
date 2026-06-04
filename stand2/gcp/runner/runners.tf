@@ -68,7 +68,7 @@ resource "google_compute_instance" "runner" {
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    ssh-keys = "${var.ssh_user}:${local.ssh_public_key}"
   }
 
   # Rebuild the VM when the provisioning script or runner registration changes.

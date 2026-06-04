@@ -24,7 +24,7 @@ resource "google_compute_instance" "cluster" {
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    ssh-keys = "${var.ssh_user}:${local.ssh_public_key}"
     user-data = templatefile("${path.module}/../../shared/cloud-init/semaphore-systemd.yaml.tftpl", {
       # Create the admin user in cloud-init on the first node so admin-token.tf
       # can mint an API token from it deterministically (rather than racing the

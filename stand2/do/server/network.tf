@@ -1,6 +1,6 @@
 resource "digitalocean_ssh_key" "default" {
   name       = "${var.prefix}-key"
-  public_key = var.ssh_public_key
+  public_key = local.ssh_public_key
 }
 
 resource "digitalocean_vpc" "main" {

@@ -9,11 +9,6 @@ variable "prefix" {
   default     = "semaphore"
 }
 
-variable "ssh_public_key" {
-  description = "SSH public key contents granted access to every instance."
-  type        = string
-}
-
 variable "ssh_user" {
   description = "Linux user the SSH public key is registered for (instance metadata `ssh-keys`)."
   type        = string
