@@ -1,13 +1,15 @@
 #cloud-config
 # Shared across the do/ and gcp/ server stacks. ${private_ip_cmd} injects the
 # provider-specific private-IP metadata lookup (the only difference between clouds).
-package_update: true
-package_upgrade: true
-packages:
-  - redis-server
-
+package_update: false
+package_upgrade: false
 runcmd:
   - |
+    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+    chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
+    apt update
+    apt install redis
     set -e
     PRIV_IP=$(${private_ip_cmd})
     mkdir -p /etc/redis/redis.conf.d
