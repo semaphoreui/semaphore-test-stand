@@ -43,3 +43,8 @@ variable "semaphore_version" {
   type        = string
   default     = "2.18.6-beta1"
 }
+
+variable "parent_domain" {
+  description = "Parent domain hosted in Cloudflare (e.g. semaphoreui.dev). The '<prefix>.<parent_domain>' sub-zone is delegated to DigitalOcean nameservers."
+  type        = string
+}

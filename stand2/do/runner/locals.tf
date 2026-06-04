@@ -1,10 +1,9 @@
 locals {
-  config_path = "${path.module}/../../../keys/stand2_${var.prefix}.config.yml"
-  config      = yamldecode(file(local.config_path))
-
-  api_base_url        = "${var.web_root}/api"
-  api_token_path      = "${path.module}/../../../keys/stand2_${var.prefix}.token"
-  api_token           = sensitive(trimspace(file(local.api_token_path)))
-  ssh_public_key_path = "${path.module}/../../../keys/stand2_${var.prefix}.pub"
-  ssh_public_key      = file(local.ssh_public_key_path)
+  prefix         = "stand2-do-${terraform.workspace}"
+  api_token      = sensitive(trimspace(file("${path.module}/../../../keys/${local.prefix}.token")))
+  ssh_public_key = file("${path.module}/../../../keys/${local.prefix}.pub")
+  dns_zone       = "${local.prefix}.${var.parent_domain}"
+  web_root       = "https://lb.${local.dns_zone}"
+  api_base_url   = "${local.web_root}/api"
+  config         = yamldecode(file("${path.module}/../../../keys/${local.prefix}.config.yml"))
 }
