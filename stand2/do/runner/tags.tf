@@ -3,5 +3,5 @@
 
 
 resource "digitalocean_tag" "runner" {
-  name = "${var.prefix}-runner"
+  name = "${local.prefix}-runner"
 }

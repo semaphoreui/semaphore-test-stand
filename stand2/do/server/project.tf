@@ -5,15 +5,15 @@ resource "digitalocean_project" "main" {
   name        = local.prefix
   description = "Semaphore UI cluster"
   purpose     = "Web Application"
-  environment = var.project_environment
+  environment = "Development"
 
   resources = concat(
     [for d in digitalocean_droplet.cluster : d.urn],
-    # [for d in digitalocean_droplet.runner : d.urn],
     [
       digitalocean_droplet.postgres.urn,
       digitalocean_droplet.redis.urn,
       digitalocean_loadbalancer.main.urn,
+      digitalocean_domain.main.urn,
     ],
   )
 }

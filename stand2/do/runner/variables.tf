@@ -4,12 +4,6 @@ variable "do_token" {
   sensitive   = true
 }
 
-variable "prefix" {
-  description = "Name prefix applied to every resource."
-  type        = string
-  default     = "semaphore"
-}
-
 variable "size" {
   description = "Droplet size slug used for all 'small' droplets."
   type        = string

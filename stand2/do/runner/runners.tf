@@ -1,6 +1,6 @@
 resource "semaphoreui_runner" "runner" {
   for_each           = local.config.runners
-  name               = "${var.prefix}-${each.value.name}"
+  name               = "${local.prefix}-${each.value.name}"
   max_parallel_tasks = 500
   active             = true
   tags               = ["local", "dev"]
@@ -9,7 +9,7 @@ resource "semaphoreui_runner" "runner" {
 resource "digitalocean_droplet" "runner" {
   for_each = local.config.runners
 
-  name     = "${var.prefix}-runner-${semaphoreui_runner.runner[each.key].id}"
+  name     = "${local.prefix}-runner-${semaphoreui_runner.runner[each.key].id}"
   image    = var.image
   size     = var.size
   region   = var.region
@@ -35,7 +35,7 @@ resource "digitalocean_droplet" "runner" {
   provisioner "file" {
     content = templatefile("${path.module}/../../shared/runner/runner-config.json.tftpl", {
       web_root    = var.web_root
-      runner_name = "${var.prefix}-${each.value.name}"
+      runner_name = "${local.prefix}-${each.value.name}"
       tags        = ["local", "dev"]
     })
     destination = "/etc/semaphore/runner-config.json"

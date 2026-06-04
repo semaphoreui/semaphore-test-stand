@@ -37,12 +37,6 @@ variable "cloudflare_api_token" {
   sensitive   = true
 }
 
-variable "project_environment" {
-  description = "DigitalOcean project environment (Development, Staging, or Production)."
-  type        = string
-  default     = "Development"
-}
-
 # --- Application secrets / config -------------------------------------------
 
 variable "db_name" {
