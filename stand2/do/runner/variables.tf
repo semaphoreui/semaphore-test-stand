@@ -26,12 +26,6 @@ variable "region" {
   default     = "fra1"
 }
 
-variable "web_root" {
-  description = "Semaphore API base URL (or set SEMAPHOREUI_API_BASE_URL)."
-  type        = string
-  default     = "https://localhost:3000"
-}
-
 variable "semaphore_version" {
   description = "Semaphore runner version (or set SEMAPHORE_RUNNER_VERSION)."
   type        = string

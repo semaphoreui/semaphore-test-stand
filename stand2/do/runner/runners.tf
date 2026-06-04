@@ -34,7 +34,7 @@ resource "digitalocean_droplet" "runner" {
 
   provisioner "file" {
     content = templatefile("${path.module}/../../shared/runner/runner-config.json.tftpl", {
-      web_root    = var.web_root
+      web_root    = local.web_root
       runner_name = "${local.prefix}-${each.value.name}"
       tags        = ["local", "dev"]
     })

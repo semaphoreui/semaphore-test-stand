@@ -19,7 +19,7 @@ resource "cloudflare_record" "delegation" {
   for_each = toset(local.digitalocean_nameservers)
 
   zone_id = data.cloudflare_zone.parent.id
-  name    = local.dns_zone # e.g. stand2.semaphoreui.dev
+  name    = local.dns_zone
   type    = "NS"
   content = each.value
   ttl     = 3600
