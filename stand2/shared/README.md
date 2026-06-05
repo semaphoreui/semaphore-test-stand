@@ -21,7 +21,7 @@ and fill them in.
 
 cd stand2/do/runner
 
-set -a; source ../../.env; source ../../.env.do; set +a
+set -a; source ../../.env; set +a
 
 terraform apply
 ```

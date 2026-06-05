@@ -1,6 +1,6 @@
 resource "semaphoreui_runner" "runner" {
   for_each           = local.config.runners
-  name               = "${local.prefix}-${each.value.name}"
+  name               = each.value.name
   max_parallel_tasks = 500
   active             = true
   tags               = ["local", "dev"]
@@ -9,7 +9,7 @@ resource "semaphoreui_runner" "runner" {
 resource "digitalocean_droplet" "runner" {
   for_each = local.config.runners
 
-  name     = "${local.prefix}-runner-${semaphoreui_runner.runner[each.key].id}"
+  name     = "runner-${semaphoreui_runner.runner[each.key].id}-${each.value.name}"
   image    = var.image
   size     = var.size
   region   = var.region

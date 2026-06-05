@@ -32,6 +32,8 @@ write_files:
           addr: "${redis_host}:6379"
           pass: "${redis_password}"
       use_remote_runner: true
+      subscription:
+        key: "${subscription_key}"
 
 
   - path: /etc/systemd/system/semaphore.service
