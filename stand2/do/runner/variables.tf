@@ -36,3 +36,8 @@ variable "parent_domain" {
   description = "Parent domain hosted in Cloudflare (e.g. semaphoreui.dev). The '<prefix>.<parent_domain>' sub-zone is delegated to DigitalOcean nameservers."
   type        = string
 }
+
+variable "web_root" {
+  type = string 
+  default = ""
+}
