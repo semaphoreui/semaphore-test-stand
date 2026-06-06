@@ -72,3 +72,9 @@ in with the `semaphore_admin_*` credentials.
 > Secrets are passed via cloud-init `user_data`. This is a test stand — for
 > production use a secrets manager and restrict SSH source IPs in the firewall
 > config.
+
+## Environment variables
+
+```sh
+set -a; source .env; set +a
+```

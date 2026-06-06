@@ -34,4 +34,6 @@ resource "digitalocean_droplet" "cluster" {
     node_index            = count.index + 1
     subscription_key     = local.config.subscription_key
   })
+
+  depends_on = [digitalocean_droplet.cluster[0]]
 }

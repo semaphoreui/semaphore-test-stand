@@ -7,7 +7,7 @@ locals {
 resource "digitalocean_droplet" "postgres" {
   name     = "${local.prefix}-postgres"
   image    = var.image
-  size     = var.size
+  size     = "s-4vcpu-8gb"
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 

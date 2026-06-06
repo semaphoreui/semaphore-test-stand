@@ -34,9 +34,6 @@ resource "terraform_data" "fetch_admin_token" {
         sleep 5
       done
 
-      # Generate the token on the server and stream stdout straight into a local
-      # file. NOTE: verify the user selector flag for your Semaphore version
-      # (`semaphore user token create --help` — --login or --user-id).
       ssh $SSH_OPTS root@"$IP" \
         "semaphore user token create --config /etc/semaphore/config.yml --login '$ADMIN_USER'" \
         > "$DEST"

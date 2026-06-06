@@ -8,7 +8,7 @@ terraform.tfvars
 .terraform.tfstate.lock.info
 admin.token
 # Shared tfvars hold secrets; commit only the .example versions.
-**/shared/*.tfvars
+*.tfvars
 .env
 .env.*
 !*.example
