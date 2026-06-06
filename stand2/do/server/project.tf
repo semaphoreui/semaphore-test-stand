@@ -6,7 +6,10 @@ resource "digitalocean_project" "main" {
   description = "Semaphore UI cluster"
   purpose     = "Web Application"
   environment = "Development"
+}
 
+resource "digitalocean_project_resources" "main" {
+  project   = digitalocean_project.main.id
   resources = concat(
     [for d in digitalocean_droplet.cluster : d.urn],
     [

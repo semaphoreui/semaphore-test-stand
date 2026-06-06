@@ -4,6 +4,7 @@ resource "semaphoreui_runner" "runner" {
   max_parallel_tasks = 500
   active             = true
   tags               = ["local", "dev"]
+  is_default         = true
 }
 
 resource "digitalocean_droplet" "runner" {
@@ -63,12 +64,28 @@ resource "digitalocean_droplet" "runner" {
   provisioner "remote-exec" {
     inline = [
       <<-EOT
-        curl -XPOST -s \
-          -H 'Authorization: Bearer ${local.api_token}' \
-          -H 'content-type: application/json' \
-          ${local.api_base_url}/runners/${semaphoreui_runner.runner[each.key].id}/registration-token \
-          | jq -r .registration_token \
-          | /usr/local/bin/semaphore runner register \
+        token=""
+        for i in $(seq 1 5); do
+          token=$(curl -XPOST -s \
+            -H 'Authorization: Bearer ${local.api_token}' \
+            -H 'content-type: application/json' \
+            ${local.api_base_url}/runners/${semaphoreui_runner.runner[each.key].id}/registration-token \
+            | jq -r .registration_token)
+
+          if [ -n "$token" ] && [ "$token" != "null" ]; then
+            break
+          fi
+
+          echo "registration token is empty, retrying ($i/5)..."
+          sleep 5
+        done
+
+        if [ -z "$token" ] || [ "$token" = "null" ]; then
+          echo "failed to obtain registration token after 5 attempts" >&2
+          exit 1
+        fi
+
+        echo $token | /usr/local/bin/semaphore runner register \
               --stdin-registration-token \
               --config /etc/semaphore/runner-config.json
       EOT
