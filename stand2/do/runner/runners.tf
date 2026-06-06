@@ -13,7 +13,7 @@ resource "digitalocean_droplet" "runner" {
   image    = var.image
   size     = var.size
   region   = var.region
-  vpc_uuid = local.no_server ? digitalocean_vpc.main[0].id : data.digitalocean_vpc.main[0].id
+  vpc_uuid = digitalocean_vpc.main.id
 
   ssh_keys = [local.no_server ? digitalocean_ssh_key.default[0].id : data.digitalocean_ssh_key.default[0].id]
   tags     = [digitalocean_tag.runner.id]

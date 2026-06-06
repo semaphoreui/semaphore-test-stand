@@ -22,14 +22,14 @@ resource "digitalocean_firewall" "main" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "5432"
-    source_addresses = [local.config.vpc_ip_range]
+    source_addresses = [local.config.cluster_ip_range]
   }
 
   # Redis — VPC only.
   inbound_rule {
     protocol         = "tcp"
     port_range       = "6379"
-    source_addresses = [local.config.vpc_ip_range]
+    source_addresses = [local.config.cluster_ip_range]
   }
 
   inbound_rule {

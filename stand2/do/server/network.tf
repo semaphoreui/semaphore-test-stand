@@ -4,7 +4,7 @@ resource "digitalocean_ssh_key" "default" {
 }
 
 resource "digitalocean_vpc" "main" {
-  name     = "${local.prefix}-vpc"
+  name     = "${local.prefix}-cluster-vpc"
   region   = var.region
-  ip_range = local.config.vpc_ip_range
+  ip_range = local.config.cluster_ip_range
 }

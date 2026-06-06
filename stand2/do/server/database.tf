@@ -18,7 +18,7 @@ resource "digitalocean_droplet" "postgres" {
     db_name        = var.db_name
     db_user        = var.db_user
     db_password    = var.db_password
-    vpc_ip_range   = local.config.vpc_ip_range
+    vpc_ip_range   = local.config.cluster_ip_range
     private_ip_cmd = local.metadata_private_ip_cmd
   })
 }
