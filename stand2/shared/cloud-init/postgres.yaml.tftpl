@@ -24,7 +24,10 @@ runcmd:
     echo "max_connections = 200" >> $PGCONF/conf.d/listen.conf
     sed -i "s/^#\?password_encryption.*/password_encryption = scram-sha-256/" $PGCONF/postgresql.conf
     HBA=$(sudo -u postgres psql -tA -c "SHOW hba_file;")
-    echo "host ${db_name} ${db_user} ${vpc_ip_range} scram-sha-256" >> "$HBA"
+    # 'all' (not just ${db_name}) so the semaphore user can also reach the
+    # 'postgres' maintenance database, which Semaphore's createDb() self-heal
+    # path connects to. Still scoped to the user + VPC range + scram.
+    echo "host all ${db_user} ${vpc_ip_range} scram-sha-256" >> "$HBA"
     systemctl enable postgresql
     systemctl restart postgresql
     sudo -u postgres psql < /root/init-db.sql

@@ -65,8 +65,14 @@ runcmd:
   - chown -R semaphore:semaphore /etc/semaphore
   - |
     export PGPASSWORD='${db_password}'
-    until pg_isready -h ${db_host} -p 5432 -U ${db_user} -d ${db_name}; do
-      echo "waiting for postgres..."; sleep 2
+    # pg_isready only confirms the server is accepting connections - it does NOT
+    # authenticate or check that the role/database exist. The postgres node
+    # creates them in init-db.sql *after* it starts accepting connections, so
+    # gate on a real authenticated query against the target database to avoid
+    # racing ahead of provisioning (otherwise "semaphore user add" below panics
+    # with a misleading 28P01 password-auth error against the not-yet-created role).
+    until psql -h ${db_host} -p 5432 -U ${db_user} -d ${db_name} -c 'SELECT 1' >/dev/null 2>&1; do
+      echo "waiting for postgres role/db..."; sleep 2
     done
   - |
     if [ "${bootstrap}" = "true" ]; then
