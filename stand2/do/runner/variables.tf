@@ -7,7 +7,7 @@ variable "do_token" {
 variable "size" {
   description = "Droplet size slug used for all 'small' droplets."
   type        = string
-  default     = "s-1vcpu-2gb"
+  default     = "s-2vcpu-4gb"
 }
 
 variable "image" {
