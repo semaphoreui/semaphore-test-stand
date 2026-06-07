@@ -10,4 +10,4 @@ cd ../server
 
 terraform workspace select $1
 
-terraform apply -auto-approve
+terraform destroy -auto-approve
