@@ -65,18 +65,19 @@ runcmd:
   - chown -R semaphore:semaphore /etc/semaphore
   - |
     export PGPASSWORD='${db_password}'
-    # pg_isready only confirms the server is accepting connections - it does NOT
-    # authenticate or check that the role/database exist. The postgres node
-    # creates them in init-db.sql *after* it starts accepting connections, so
-    # gate on a real authenticated query against the target database to avoid
-    # racing ahead of provisioning (otherwise "semaphore user add" below panics
-    # with a misleading 28P01 password-auth error against the not-yet-created role).
     until psql -h ${db_host} -p 5432 -U ${db_user} -d ${db_name} -c 'SELECT 1' >/dev/null 2>&1; do
       echo "waiting for postgres role/db..."; sleep 2
     done
   - |
+    export PGPASSWORD='${db_password}'
+    
     if [ "${bootstrap}" = "true" ]; then
       semaphore user add --config /etc/semaphore/config.yml --login "${admin_user}" --name "${admin_user}" --email "${admin_email}" --password "${admin_password}" --admin
+    else
+      until [ -n "$(psql -h ${db_host} -p 5432 -U ${db_user} -d ${db_name} -tAc "SELECT id FROM \"user\" WHERE username = '${admin_user}'" 2>/dev/null)" ]; do
+        echo "waiting for bootstrap node to create admin user..."; sleep 2
+      done
     fi
+
   - systemctl daemon-reload
   - systemctl enable --now semaphore
