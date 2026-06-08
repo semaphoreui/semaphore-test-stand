@@ -46,6 +46,7 @@ write_files:
       Wants=network-online.target
 
       [Service]
+      Envrionment=SEMAPHORE_LOG_LEVEL=debug
       Type=simple
       User=semaphore
       Group=semaphore
