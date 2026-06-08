@@ -5,7 +5,7 @@ resource "digitalocean_droplet" "cluster" {
   count    = local.config.cluster
   name     = "${local.prefix}-ui-${count.index + 1}"
   image    = var.image
-  size     = var.size
+  size     = "s-4vcpu-8gb"
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
@@ -32,7 +32,8 @@ resource "digitalocean_droplet" "cluster" {
     admin_email           = var.semaphore_admin_email
     semaphore_version     = var.semaphore_version
     node_index            = count.index + 1
-    subscription_key     = local.config.subscription_key
+    subscription_key      = local.config.subscription_key
+    ha_enabled            = local.config.ha_disabled ? "false" : "true"
   })
 
   depends_on = [digitalocean_droplet.cluster[0]]

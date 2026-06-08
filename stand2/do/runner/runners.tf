@@ -66,6 +66,9 @@ resource "digitalocean_droplet" "runner" {
       <<-EOT
         token=""
         for i in $(seq 1 5); do
+
+          echo "attempting to obtain registration token for runner ${semaphoreui_runner.runner[each.key].id} (attempt $i)..." >> /tmp/runner-registration.log
+
           token=$(curl -XPOST -s \
             -H 'Authorization: Bearer ${local.api_token}' \
             -H 'content-type: application/json' \
@@ -76,18 +79,22 @@ resource "digitalocean_droplet" "runner" {
             break
           fi
 
-          echo "registration token is empty, retrying ($i/5)..."
+          echo "registration token is empty, retrying ($i/5)..." >> /tmp/runner-registration.log
           sleep 5
         done
 
         if [ -z "$token" ] || [ "$token" = "null" ]; then
-          echo "failed to obtain registration token after 5 attempts" >&2
+          echo "failed to obtain registration token after 5 attempts" >> /tmp/runner-registration.log
           exit 1
         fi
+
+        echo "obtained registration token $token, registering runner..." >> /tmp/runner-registration.log
 
         echo $token | /usr/local/bin/semaphore runner register \
               --stdin-registration-token \
               --config /etc/semaphore/runner-config.json
+
+        echo "runner registered successfully" >> /tmp/runner-registration.log
       EOT
       ,
       "systemctl enable --now semaphore-runner",
