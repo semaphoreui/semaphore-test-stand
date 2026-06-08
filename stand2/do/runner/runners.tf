@@ -19,7 +19,9 @@ resource "digitalocean_droplet" "runner" {
   ssh_keys = [local.no_server ? digitalocean_ssh_key.default[0].id : data.digitalocean_ssh_key.default[0].id]
   tags     = [digitalocean_tag.runner.id]
 
-  user_data = templatefile("${path.module}/../../shared/cloud-init/runner-systemd.yaml.tftpl", {})
+  user_data = templatefile("${path.module}/../../shared/cloud-init/runner-systemd.yaml.tftpl", {
+    runner_id = semaphoreui_runner.runner[each.key].id
+  })
 
   connection {
     type = "ssh"
