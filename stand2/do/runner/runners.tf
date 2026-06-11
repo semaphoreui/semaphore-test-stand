@@ -1,7 +1,7 @@
 resource "semaphoreui_runner" "runner" {
   for_each           = local.config.runners
   name               = each.value.name
-  max_parallel_tasks = 500
+  max_parallel_tasks = 10
   active             = true
   tags               = ["local", "dev"]
   is_default         = true

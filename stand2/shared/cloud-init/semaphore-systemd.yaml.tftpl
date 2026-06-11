@@ -25,6 +25,9 @@ write_files:
       access_key_encryption: "${access_key_encryption}"
       email_alert: false
       max_parallel_tasks: 9999
+      runners:
+        offline_timeout_sec: 60
+        task_fail_timeout_sec: 120
       ha:
         enabled: ${ha_enabled}
         node_id: node${node_index}
