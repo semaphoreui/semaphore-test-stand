@@ -5,7 +5,7 @@ locals {
 }
 
 resource "digitalocean_droplet" "postgres" {
-  name     = "${local.prefix}-postgres"
+  name     = "postgres"
   image    = var.image
   size     = "s-4vcpu-8gb"
   region   = var.region
@@ -24,7 +24,7 @@ resource "digitalocean_droplet" "postgres" {
 }
 
 resource "digitalocean_droplet" "redis" {
-  name     = "${local.prefix}-redis"
+  name     = "redis"
   image    = var.image
   size     = var.size
   region   = var.region

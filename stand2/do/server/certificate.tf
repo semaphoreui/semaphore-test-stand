@@ -23,5 +23,5 @@ resource "digitalocean_record" "lb" {
   type   = "A"
   name   = "lb"
   value  = digitalocean_loadbalancer.main.ip
-  ttl    = 300
+  ttl    = 60
 }

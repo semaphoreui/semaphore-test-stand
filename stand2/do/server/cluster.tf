@@ -3,7 +3,7 @@
 # and Redis are resolved from their droplet resources (created first).
 resource "digitalocean_droplet" "cluster" {
   count    = local.config.cluster
-  name     = "${local.prefix}-ui-${count.index + 1}"
+  name     = "ui-${count.index + 1}"
   image    = var.image
   size     = "s-4vcpu-8gb"
   region   = var.region

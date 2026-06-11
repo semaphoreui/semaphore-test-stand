@@ -22,7 +22,7 @@ resource "cloudflare_record" "delegation" {
   name    = local.dns_zone
   type    = "NS"
   content = each.value
-  ttl     = 3600
+  ttl     = 60
   # NS records cannot be proxied through Cloudflare.
 
   # Ensure the DO zone exists before pointing nameservers at it.
