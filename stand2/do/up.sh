@@ -6,9 +6,7 @@ terraform workspace select $1
 
 terraform apply -auto-approve
 
-# Wait until the load balancer host answers before bringing up the runners,
-# which register against the Semaphore API on boot. Poll the DNS name (not the
-# IP) so we also wait for the delegated zone to propagate.
+
 web_root=$(terraform output -raw semaphore_url)
 echo "Waiting for $web_root to become available..."
 deadline=$(( $(date +%s) + 600 ))
@@ -24,7 +22,5 @@ echo "$web_root is available."
 cd ../runner
 
 terraform workspace select $1
-
-
 
 terraform apply -auto-approve
