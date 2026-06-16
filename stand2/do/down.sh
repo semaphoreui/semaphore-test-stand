@@ -1,15 +1,33 @@
+#!/usr/bin/env zsh
 set -a; source ../.env; set +a
 
 cd runner
 
-terraform workspace select $1
+if [[ -n "$1" ]]; then
+  terraform workspace select $1
+fi
 
 terraform destroy -auto-approve
 
-cd ../server
+cd ..
 
-terraform workspace select $1
+cd server
 
-$TARGETS=$(terraform state list | grep -v -E "digitalocean_certificate|digitalocean_domain|cloudflare_record" | awk '{print "-target=" $0}')
+if [[ -n "$1" ]]; then
+  terraform workspace select $1
+fi
 
-terraform destroy $TARGETS -auto-approve
+TARGETS=("${(@f)$(terraform state list |
+  grep -v -E 'cloudflare_zone|digitalocean_certificate|digitalocean_domain|cloudflare_record' |
+  sed 's/^/-target=/'
+)}")
+
+if (( ${#TARGETS[@]} == 0 )); then
+  echo "No resources selected"
+  exit 1
+fi
+
+echo "Targets:"
+printf '  %s\n' "${TARGETS[@]}"
+
+terraform destroy "${TARGETS[@]}" -auto-approve

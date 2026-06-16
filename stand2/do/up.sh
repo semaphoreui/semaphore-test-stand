@@ -2,7 +2,9 @@ set -a; source ../.env; set +a
 
 cd server
 
-terraform workspace select $1
+if [[ -n "$1" ]]; then
+  terraform workspace select $1
+fi
 
 terraform apply -auto-approve
 
@@ -19,8 +21,12 @@ until curl -sk -o /dev/null -f "$web_root/api/ping"; do
 done
 echo "$web_root is available."
 
-cd ../runner
+cd ..
 
-terraform workspace select $1
+cd runner
+
+if [[ -n "$1" ]]; then
+  terraform workspace select $1
+fi
 
 terraform apply -auto-approve
