@@ -8,7 +8,10 @@ packages:
   - jq
   - curl
   - software-properties-common
+  - docker.io
+  - docker-compose-v2
 
 runcmd:
   - add-apt-repository -y --update ppa:ansible/ansible
   - DEBIAN_FRONTEND=noninteractive apt-get install -y ansible
+  - systemctl enable --now docker
