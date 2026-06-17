@@ -104,3 +104,13 @@ variable "semaphore_version" {
   type        = string
   default     = "2.18.6-beta1"
 }
+
+variable "ssh_key_name" {
+  description = "Name of the existing SSH key in DigitalOcean to use for runner access (or set SSH_KEY_NAME)."
+  type        = string
+}
+
+variable "ssh_public_key_path" {
+  type    = string
+  default = "~/.ssh/id_rsa.pub"
+}

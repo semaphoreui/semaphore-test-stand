@@ -12,7 +12,7 @@ resource "digitalocean_droplet" "proxy" {
   size   = var.size
   region = var.region
 
-  ssh_keys = [digitalocean_ssh_key.default.id]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id]
 
   user_data = templatefile("${path.module}/cloud-init/nginx.yaml.tftpl", {

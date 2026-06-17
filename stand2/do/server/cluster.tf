@@ -9,7 +9,7 @@ resource "digitalocean_droplet" "cluster" {
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
-  ssh_keys = [digitalocean_ssh_key.default.id]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.ui.id]
 
   user_data = templatefile("${path.module}/../../shared/cloud-init/semaphore-systemd.yaml.tftpl", {

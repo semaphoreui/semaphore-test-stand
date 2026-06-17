@@ -11,7 +11,7 @@ resource "digitalocean_droplet" "postgres" {
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
-  ssh_keys = [digitalocean_ssh_key.default.id]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.database.id]
 
   user_data = templatefile("${path.module}/../../shared/cloud-init/postgres.yaml.tftpl", {
@@ -30,7 +30,7 @@ resource "digitalocean_droplet" "redis" {
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
-  ssh_keys = [digitalocean_ssh_key.default.id]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.base.id, digitalocean_tag.redis.id]
 
   user_data = templatefile("${path.module}/../../shared/cloud-init/redis.yaml.tftpl", {

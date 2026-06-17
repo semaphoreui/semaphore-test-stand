@@ -16,7 +16,7 @@ resource "digitalocean_droplet" "runner" {
   region   = var.region
   vpc_uuid = digitalocean_vpc.main.id
 
-  ssh_keys = [local.no_server ? digitalocean_ssh_key.default[0].id : data.digitalocean_ssh_key.default[0].id]
+  ssh_keys = [data.digitalocean_ssh_key.default.id]
   tags     = [digitalocean_tag.runner.id]
 
   user_data = templatefile("${path.module}/../../shared/cloud-init/runner-systemd.yaml.tftpl", {
