@@ -51,8 +51,3 @@ variable "ssh_key_name" {
   description = "Name of the existing SSH key in DigitalOcean to use for runner access (or set SSH_KEY_NAME)."
   type        = string
 }
-
-variable "do_k8s_cluster" {
-  description = "Name or ID of the DigitalOcean Kubernetes cluster whose kubeconfig is saved on the runner (or set TF_VAR_do_k8s_cluster)."
-  type        = string
-}

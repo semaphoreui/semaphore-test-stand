@@ -53,6 +53,7 @@ resource "digitalocean_droplet" "runner" {
     inline = [
       "snap install doctl",
       "snap connect doctl:kube-config",
+      "snap install kubectl --classic",
       "mkdir -p ~/.config",
       "doctl auth init --access-token ${var.do_token}",
       "doctl kubernetes cluster kubeconfig save ${var.do_k8s_cluster}",
