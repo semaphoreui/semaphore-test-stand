@@ -4,6 +4,11 @@ variable "do_token" {
   sensitive   = true
 }
 
+variable "do_k8s_cluster" {
+  description = "DigitalOcean Kubernetes cluster ID (or set DO_K8S_CLUSTER)."
+  type        = string
+}
+
 variable "size" {
   description = "Droplet size slug used for all 'small' droplets."
   type        = string
@@ -44,5 +49,10 @@ variable "web_root" {
 
 variable "ssh_key_name" {
   description = "Name of the existing SSH key in DigitalOcean to use for runner access (or set SSH_KEY_NAME)."
+  type        = string
+}
+
+variable "do_k8s_cluster" {
+  description = "Name or ID of the DigitalOcean Kubernetes cluster whose kubeconfig is saved on the runner (or set TF_VAR_do_k8s_cluster)."
   type        = string
 }

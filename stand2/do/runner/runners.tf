@@ -51,6 +51,16 @@ resource "digitalocean_droplet" "runner" {
 
   provisioner "remote-exec" {
     inline = [
+      "snap install doctl",
+      "snap connect doctl:kube-config",
+      "mkdir -p ~/.config",
+      "doctl auth init --access-token ${var.do_token}",
+      "doctl kubernetes cluster kubeconfig save ${var.do_k8s_cluster}",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
       "curl -o semaphore_${var.semaphore_version}_linux_amd64.tar.gz -L https://github.com/semaphoreui/semaphore/releases/download/v${var.semaphore_version}/semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
       "tar xf semaphore_${var.semaphore_version}_linux_amd64.tar.gz",
       "mv semaphore /usr/local/bin/",
@@ -59,6 +69,12 @@ resource "digitalocean_droplet" "runner" {
       "chmod 0600 /etc/semaphore/runner-config.json",
       "chmod 0644 /etc/systemd/system/semaphore-runner.service",
       "chown -R semaphore:semaphore /etc/semaphore",
+
+      "install -d -m 0700 -o semaphore -g semaphore /home/semaphore/.kube",
+      "cp /root/.kube/config /home/semaphore/.kube/config",
+      "chown semaphore:semaphore /home/semaphore/.kube/config",
+      "chmod 0600 /home/semaphore/.kube/config",
+
       "systemctl daemon-reload",
     ]
   }
