@@ -14,4 +14,6 @@ packages:
 runcmd:
   - add-apt-repository -y --update ppa:ansible/ansible
   - DEBIAN_FRONTEND=noninteractive apt-get install -y ansible
+  - usermod -aG docker semaphore
+  - systemctl restart semaphore
   - systemctl enable --now docker
