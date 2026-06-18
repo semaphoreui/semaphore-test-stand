@@ -6,6 +6,9 @@
     "private_key_file": "/etc/semaphore/runner.key",
     "name": "${runner_name}",
     "tags": ${jsonencode(tags)},
-    "max_parallel_tasks": 9999
+    "max_parallel_tasks": 9999,
+    "executor": {
+      "type": "docker"
+    }
   }
 }

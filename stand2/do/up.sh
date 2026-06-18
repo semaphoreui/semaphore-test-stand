@@ -17,7 +17,8 @@ until curl -sk -o /dev/null -f "$web_root/api/ping"; do
     echo "Timed out waiting for $web_root" >&2
     exit 1
   fi
-  sleep 10
+  sleep 5
+  echo "Still waiting for $web_root..."
 done
 echo "$web_root is available."
 
