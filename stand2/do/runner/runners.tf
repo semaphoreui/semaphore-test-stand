@@ -51,10 +51,12 @@ resource "digitalocean_droplet" "runner" {
 
   provisioner "remote-exec" {
     inline = [
+      "snap wait system seed.loaded",
       "snap install doctl",
       "snap connect doctl:kube-config",
       "snap install kubectl --classic",
-      "mkdir -p ~/.config",
+      "mkdir -p /root/.config",
+      "mkdir -p /root/.kube",
       "doctl auth init --access-token ${var.do_token}",
       "doctl kubernetes cluster kubeconfig save ${var.do_k8s_cluster}",
     ]
