@@ -23,7 +23,7 @@ variable "region" {
     cluster lives in one region.
   EOT
   type        = string
-  default     = "fra1"
+  default     = "ams3"
 }
 
 variable "parent_domain" {
@@ -108,9 +108,4 @@ variable "semaphore_version" {
 variable "ssh_key_name" {
   description = "Name of the existing SSH key in DigitalOcean to use for runner access (or set SSH_KEY_NAME)."
   type        = string
-}
-
-variable "ssh_public_key_path" {
-  type    = string
-  default = "~/.ssh/id_rsa.pub"
 }

@@ -1,7 +1,6 @@
 locals {
   prefix         = "stand2-do-${terraform.workspace}"
   api_token      = sensitive(trimspace(file("${path.module}/../../../keys/${local.prefix}/admin.token")))
-  ssh_public_key = file(var.ssh_public_key_path)
   dns_zone       = "${local.prefix}.${var.parent_domain}"
   web_root       = var.web_root != "" ? var.web_root : "https://lb.${local.dns_zone}"
   api_base_url   = "${local.web_root}/api"
