@@ -11,26 +11,23 @@ terraform destroy -auto-approve
 
 cd ..
 
+cd server
 
+if [[ -n "$1" ]]; then
+  terraform workspace select $1
+fi
 
+TARGETS=("${(@f)$(terraform state list |
+  grep -v -E 'cloudflare_zone|digitalocean_certificate|digitalocean_domain|cloudflare_record' |
+  sed 's/^/-target=/'
+)}")
 
-# cd server
+if (( ${#TARGETS[@]} == 0 )); then
+  echo "No resources selected"
+  exit 1
+fi
 
-# if [[ -n "$1" ]]; then
-#   terraform workspace select $1
-# fi
+echo "Targets:"
+printf '  %s\n' "${TARGETS[@]}"
 
-# TARGETS=("${(@f)$(terraform state list |
-#   grep -v -E 'cloudflare_zone|digitalocean_certificate|digitalocean_domain|cloudflare_record' |
-#   sed 's/^/-target=/'
-# )}")
-
-# if (( ${#TARGETS[@]} == 0 )); then
-#   echo "No resources selected"
-#   exit 1
-# fi
-
-# echo "Targets:"
-# printf '  %s\n' "${TARGETS[@]}"
-
-# terraform destroy "${TARGETS[@]}" -auto-approve
+terraform destroy "${TARGETS[@]}" -auto-approve
