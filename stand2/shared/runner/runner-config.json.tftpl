@@ -8,7 +8,12 @@
     "tags": ${jsonencode(tags)},
     "max_parallel_tasks": 9999,
     "executor": {
-      "type": "docker"
+      "type": "k8s",
+      "k8s": {
+        "kubeconfig": "/home/semaphore/.kube/config",
+        "image": "semaphoreui/job:develop",
+        "helper_image": "semaphoreui/job:develop"
+      }
     }
   }
 }

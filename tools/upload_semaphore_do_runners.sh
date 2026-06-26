@@ -1,1 +1,1 @@
-./upload_semaphore_do.sh $1-runner semaphore-runner
+./upload_do.sh $1-runner semaphore-runner semaphore

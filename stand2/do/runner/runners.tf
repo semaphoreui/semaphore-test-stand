@@ -54,7 +54,8 @@ resource "digitalocean_droplet" "runner" {
       "snap wait system seed.loaded",
       "snap install doctl",
       "snap connect doctl:kube-config",
-      "snap install kubectl --classic",
+      "curl -LO \"https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl\"",
+      "install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl",
       "mkdir -p /root/.config",
       "mkdir -p /root/.kube",
       "doctl auth init --access-token ${var.do_token}",
@@ -77,6 +78,10 @@ resource "digitalocean_droplet" "runner" {
       "cp /root/.kube/config /home/semaphore/.kube/config",
       "chown semaphore:semaphore /home/semaphore/.kube/config",
       "chmod 0600 /home/semaphore/.kube/config",
+
+      "install -d -m 0700 -o semaphore -g semaphore /home/semaphore/.config",
+      "cp -r /root/.config/doctl /home/semaphore/.config/doctl",
+      "chown -R semaphore:semaphore /home/semaphore/.config",
 
       "systemctl daemon-reload",
     ]
