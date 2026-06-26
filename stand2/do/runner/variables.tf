@@ -9,6 +9,12 @@ variable "do_k8s_cluster" {
   type        = string
 }
 
+variable "runner_executor_type" {
+  description = "Executor type used by the runners (e.g. \"docker\" or \"k8s\")."
+  type        = string
+  default     = "docker"
+}
+
 variable "size" {
   description = "Droplet size slug used for all 'small' droplets."
   type        = string
@@ -43,7 +49,7 @@ variable "parent_domain" {
 }
 
 variable "web_root" {
-  type = string 
+  type    = string
   default = ""
 }
 

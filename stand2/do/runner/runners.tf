@@ -4,7 +4,7 @@ resource "semaphoreui_runner" "runner" {
   max_parallel_tasks = 10
   active             = true
   tags               = ["local", "dev"]
-  is_default         = true
+  is_default         = false
 }
 
 resource "digitalocean_droplet" "runner" {
@@ -37,9 +37,10 @@ resource "digitalocean_droplet" "runner" {
 
   provisioner "file" {
     content = templatefile("${path.module}/../../shared/runner/runner-config.json.tftpl", {
-      web_root    = local.web_root
-      runner_name = "${local.prefix}-${each.value.name}"
-      tags        = ["local", "dev"]
+      web_root             = local.web_root
+      runner_name          = "${local.prefix}-${each.value.name}"
+      tags                 = ["local", "dev"],
+      runner_executor_type = each.value.runner_executor_type
     })
     destination = "/etc/semaphore/runner-config.json"
   }
@@ -50,7 +51,7 @@ resource "digitalocean_droplet" "runner" {
   }
 
   provisioner "remote-exec" {
-    inline = [
+    inline = concat([
       "snap wait system seed.loaded",
       "snap install doctl",
       "snap connect doctl:kube-config",
@@ -59,8 +60,8 @@ resource "digitalocean_droplet" "runner" {
       "mkdir -p /root/.config",
       "mkdir -p /root/.kube",
       "doctl auth init --access-token ${var.do_token}",
-      "doctl kubernetes cluster kubeconfig save ${var.do_k8s_cluster}",
-    ]
+      ],
+    each.value.runner_executor_type == "k8s" ? ["doctl kubernetes cluster kubeconfig save ${var.do_k8s_cluster}"] : [])
   }
 
   provisioner "remote-exec" {

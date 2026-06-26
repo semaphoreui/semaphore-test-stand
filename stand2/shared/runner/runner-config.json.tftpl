@@ -8,7 +8,7 @@
     "tags": ${jsonencode(tags)},
     "max_parallel_tasks": 9999,
     "executor": {
-      "type": "k8s",
+      "type": "${runner_executor_type}",
       "docker": {
         "image": "semaphoreui/job:develop",
         "helper_image": "semaphoreui/job:develop"
